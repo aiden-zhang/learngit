@@ -10,8 +10,8 @@ class SimpleCBOW:
         V, H = vocab_size, hidden_size
 
         # 初始化权重
-        W_in = 0.01 * np.random.randn(V, H).astype('f')
-        W_out = 0.01 * np.random.randn(H, V).astype('f')
+        W_in = 0.01 * np.random.randn(V, H).astype('f') #7x5
+        W_out = 0.01 * np.random.randn(H, V).astype('f') #5x7
 
         # 生成层
         self.in_layer0 = MatMul(W_in)
@@ -20,10 +20,10 @@ class SimpleCBOW:
         self.loss_layer = SoftmaxWithLoss()
 
         # 将所有的权重和梯度整理到列表中
-        layers = [self.in_layer0, self.in_layer1, self.out_layer]
+        layers = [self.in_layer0, self.in_layer1, self.out_layer] #为什么没放loss_layer？
         self.params, self.grads = [], []
         for layer in layers:
-            self.params += layer.params
+            self.params += layer.params #
             self.grads += layer.grads
 
         # 将单词的分布式表示设置为成员变量
