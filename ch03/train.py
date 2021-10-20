@@ -8,7 +8,7 @@ from common.util import preprocess, create_contexts_target, convert_one_hot
 
 
 window_size = 1 #上下文各一个词元
-hidden_size = 5
+hidden_size = 5 #决定最终生成的word vector维数
 batch_size = 3
 max_epoch = 1000
 
@@ -38,5 +38,5 @@ trainer.fit(contexts, target, max_epoch, batch_size)
 trainer.plot()
 
 word_vecs = model.word_vecs
-for word_id, word in id_to_word.items():
-    print(word, word_vecs[word_id])
+for word_id, word in id_to_word.items(): #id_to_word:{0: 'you', 1: 'say', 2: 'goodbye', 3: 'and', 4: 'i', 5: 'hello', 6: '.'}
+    print(word, word_vecs[word_id]) #得到you [ 1.3056368   0.9430253   0.9081349  -0.95727634  1.609679  ]类似各个词元的vector
