@@ -1,4 +1,6 @@
 # coding: utf-8
+#功能:训练加法运算，ENCODE的输入是加法运算表达式，DECONDER输出表达式结果
+#模型：
 import sys
 sys.path.append('..')
 import numpy as np
@@ -12,7 +14,9 @@ from peeky_seq2seq import PeekySeq2seq
 
 
 # 读入数据集
-(x_train, t_train), (x_test, t_test) = sequence.load_data('addition.txt')
+#共 5万条 x_train 45000条，x_test 5000条
+
+(x_train, t_train), (x_test, t_test) = sequence.load_data('addition.txt') 
 char_to_id, id_to_char = sequence.get_vocab()
 
 # Reverse input? =================================================
