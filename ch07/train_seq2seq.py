@@ -15,8 +15,13 @@ from peeky_seq2seq import PeekySeq2seq
 
 # 读入数据集
 #共 5万条 x_train 45000条，x_test 5000条
+#x_train等数据都是字符对应的数字id，如:
+#x_train[0]: [3,  0,  2,  0,  0, 11,  5]::71+118
+#t_train[0]: [ 6,  0, 11,  7,  5]        ::_119
+(x_train, t_train), (x_test, t_test) = sequence.load_data('addition.txt')
 
-(x_train, t_train), (x_test, t_test) = sequence.load_data('addition.txt') 
+#{'1': 0, '6': 1, '+': 2, '7': 3, '5': 4, ' ': 5, '_': 6, '9': 7, '2': 8, '0': 9, '3': 10, '8': 11, '4': 12}::共13个
+#{0: '1', 1: '6', 2: '+', 3: '7', 4: '5', 5: ' ', 6: '_', 7: '9', 8: '2', 9: '0', 10: '3', 11: '8', 12: '4'}
 char_to_id, id_to_char = sequence.get_vocab()
 
 # Reverse input? =================================================
@@ -26,7 +31,7 @@ if is_reverse:
 # ================================================================
 
 # 设定超参数
-vocab_size = len(char_to_id)
+vocab_size = len(char_to_id) #13
 wordvec_size = 16
 hidden_size = 128
 batch_size = 128
