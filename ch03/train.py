@@ -12,7 +12,7 @@ hidden_size = 5 #决定最终生成的word vector维数
 batch_size = 3
 max_epoch = 1000
 
-text = 'You say goodbye and I say hello.' #包含标点共7个词元
+text = 'You say goodbye and I say hello.' #包含标点共8个词元
 
 #注意word_to_id和id_to_word都是没有重复项的
 corpus, word_to_id, id_to_word = preprocess(text) #corpus是词元对应数字的列表:[0, 1, 2, 3, 4, 1, 5, 6]

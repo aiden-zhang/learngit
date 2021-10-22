@@ -24,7 +24,7 @@ max_epoch = 10
 
 # 读入数据
 corpus, word_to_id, id_to_word = ptb.load_data('train')
-vocab_size = len(word_to_id)
+vocab_size = len(word_to_id) #10000
 
 contexts, target = create_contexts_target(corpus, window_size)
 if config.GPU:

@@ -12,7 +12,7 @@ class CBOW:
 
         # 初始化权重
         W_in = 0.01 * np.random.randn(V, H).astype('f')
-        W_out = 0.01 * np.random.randn(V, H).astype('f')
+        W_out = 0.01 * np.random.randn(V, H).astype('f')#为什么是VxH
 
         # 生成层
         self.in_layers = []
