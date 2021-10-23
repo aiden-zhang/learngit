@@ -20,7 +20,7 @@ from dataset import ptb
 
 # 设定超参数
 window_size = 2
-hidden_size = 100
+hidden_size = 5
 batch_size = 2
 max_epoch = 1000
 
@@ -43,6 +43,7 @@ optimizer = Adam()
 trainer = Trainer(model, optimizer)
 
 # 开始学习
+# 在contexts中每次取batch_size个数据，按当前params预测相应的target，forward计算损失，backward计算梯度，update更新params
 trainer.fit(contexts, target, max_epoch, batch_size)
 trainer.plot()
 
