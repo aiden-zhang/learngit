@@ -14,10 +14,11 @@ class CBOW:
         W_in = 0.01 * np.random.randn(V, H).astype('f')
         W_out = 0.01 * np.random.randn(V, H).astype('f')#为什么是VxH
 
+
         # 生成层
         self.in_layers = []
         for i in range(2 * window_size):
-            layer = Embedding(W_in)  # 使用Embedding层
+            layer = Embedding(W_in)  # 每一个上下文词元需要使用一个Embedding层,但每层的W_in是相同的
             self.in_layers.append(layer)
         self.ns_loss = NegativeSamplingLoss(W_out, corpus, power=0.75, sample_size=5)
 
@@ -34,7 +35,7 @@ class CBOW:
     def forward(self, contexts, target):
         h = 0
         for i, layer in enumerate(self.in_layers):
-            h += layer.forward(contexts[:, i])
+            h += layer.forward(contexts[:, i])#通过上下文数字id查询W_in对应行，所以上下文的累加放到h中，再求平均
         h *= 1 / len(self.in_layers)
         loss = self.ns_loss.forward(h, target)
         return loss
