@@ -7,3 +7,8 @@ git branch -r 查看远程分支
 #更新远程到本地
 git fetch --all
 git pull
+
+#更新本地到远程
+git add [更新或增加的文件]
+git commit -m "评论"
+git push
