@@ -12,8 +12,8 @@ class RNN:
 
     def forward(self, x, h_prev):
         Wx, Wh, b = self.params
-        t = np.dot(h_prev, Wh) + np.dot(x, Wx) + b
-        h_next = np.tanh(t)
+        t = np.dot(h_prev, Wh) + np.dot(x, Wx) + b #10x100 * 100x100 + 10x100*100x100 ->t::10x100
+        h_next = np.tanh(t) #h_next::10x100
 
         self.cache = (x, h_prev, h_next)
         return h_next
@@ -46,8 +46,13 @@ class TimeRNN:
         self.stateful = stateful
 
     def forward(self, xs):
+        # Wx::100x100  Wh::100x100 b::1x100
         Wx, Wh, b = self.params
+        
+        #10x5x100
         N, T, D = xs.shape
+        
+        #100x100
         D, H = Wx.shape
 
         self.layers = []
@@ -58,7 +63,7 @@ class TimeRNN:
 
         for t in range(T):
             layer = RNN(*self.params)
-            self.h = layer.forward(xs[:, t, :], self.h)
+            self.h = layer.forward(xs[:, t, :], self.h)#该函数本次循环返回h_next，下次循环用作h_prev
             hs[:, t, :] = self.h
             self.layers.append(layer)
 
@@ -233,15 +238,25 @@ class TimeEmbedding:
         self.W = W
 
     def forward(self, xs):
+        
+        #10x5
         N, T = xs.shape
+        
+        #418x100
         V, D = self.W.shape
-
+        
+        #10x5x100
         out = np.empty((N, T, D), dtype='f')
         self.layers = []
 
         for t in range(T):
-            layer = Embedding(self.W)
-            out[:, t, :] = layer.forward(xs[:, t])
+            layer = Embedding(self.W) #418x100
+            
+            #xs 10x5 一列列处理通过Embedding.forward得到对应数字id的word vect
+            # 每次从xs取一列10个生成idx，再通过Embedding.forward从418x100的中word vect中按idx查出10个10x100的 wordvect;
+            out[:, t, :] = layer.forward(xs[:, t]) #该forward传入的idx是10元素的列表，每次返回的word vect是10x100
+            #out是10x5x100，
+            
             self.layers.append(layer)
 
         return out
@@ -267,12 +282,12 @@ class TimeAffine:
 
     def forward(self, x):
         N, T, D = x.shape
-        W, b = self.params
+        W, b = self.params #w::100x418 b::1x418
 
-        rx = x.reshape(N*T, -1)
-        out = np.dot(rx, W) + b
+        rx = x.reshape(N*T, -1) #x::10x5x100 rx::10x100 为了加快计算把每一Time层的5个10x100的xs放在一起处理
+        out = np.dot(rx, W) + b #50x100 * 100x418 + 1x418 ->out::50x418
         self.x = x
-        return out.reshape(N, T, -1)
+        return out.reshape(N, T, -1) #昨晚矩阵乘法运算后reshape->重新变成10x5x418
 
     def backward(self, dout):
         x = self.x
@@ -300,8 +315,8 @@ class TimeSoftmaxWithLoss:
         self.ignore_label = -1
 
     def forward(self, xs, ts):
-        N, T, V = xs.shape
-
+        N, T, V = xs.shape #10x5x418
+        #ts::10x5
         if ts.ndim == 3:  # 在监督标签为one-hot向量的情况下
             ts = ts.argmax(axis=2)
 

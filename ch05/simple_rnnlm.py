@@ -7,11 +7,12 @@ from common.time_layers import *
 
 class SimpleRnnlm:
     def __init__(self, vocab_size, wordvec_size, hidden_size):
+        #V, D, H = 418, 100, 100
         V, D, H = vocab_size, wordvec_size, hidden_size
         rn = np.random.randn
 
         # 初始化权重
-        embed_W = (rn(V, D) / 100).astype('f')
+        embed_W = (rn(V, D) / 100).astype('f')  #初始化418个100维的词向量
         rnn_Wx = (rn(D, H) / np.sqrt(D)).astype('f')
         rnn_Wh = (rn(H, H) / np.sqrt(H)).astype('f')
         rnn_b = np.zeros(H).astype('f')
@@ -20,9 +21,9 @@ class SimpleRnnlm:
 
         # 生成层
         self.layers = [
-            TimeEmbedding(embed_W),
-            TimeRNN(rnn_Wx, rnn_Wh, rnn_b, stateful=True),
-            TimeAffine(affine_W, affine_b)
+            TimeEmbedding(embed_W), #通过embed_W得到每一个iter需要的xs对应的word vect 传入每个bach的xs::10x5传出其对应的word vect是10x5x100
+            TimeRNN(rnn_Wx, rnn_Wh, rnn_b, stateful=True),#改层传入上一层得到的xs对应word vect得到hs::10x5x100
+            TimeAffine(affine_W, affine_b) #传入hs与100x418的权重W做个矩阵乘法，得到新的xs::10x5x418，用来传入softmax得到ys
         ]
         self.loss_layer = TimeSoftmaxWithLoss()
         self.rnn_layer = self.layers[1]
