@@ -93,7 +93,7 @@ class RnnlmTrainer:
     def fit(self, xs, ts, max_epoch=10, batch_size=20, time_size=35,
             max_grad=None, eval_interval=20):
         data_size = len(xs)
-        max_iters = data_size // (batch_size * time_size)
+        max_iters = data_size // (batch_size * time_size) #929588//(20*30) = 1327
         self.time_idx = 0
         self.ppl_list = []
         self.eval_interval = eval_interval
@@ -103,7 +103,9 @@ class RnnlmTrainer:
 
         start_time = time.time()
         for epoch in range(max_epoch):
-            for iters in range(max_iters):
+            for iters in range(max_iters): #1327
+                
+                #20x35
                 batch_x, batch_t = self.get_batch(xs, ts, batch_size, time_size)
 
                 # 计算梯度，更新参数

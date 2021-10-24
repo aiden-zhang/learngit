@@ -1,4 +1,7 @@
 # coding: utf-8
+#采用1000大小的corpus进行训练；模型采用基本基本的RNN;
+#该模型有4层构成::TimeEmbedding->TimeRNN->TimeAffine->TimeSoftmaxWithLoss
+#每次取mini_batch为10x5，其中5代表一个TimeRNN由5个基础的RNN单元构成
 import sys
 sys.path.append('..')
 import matplotlib.pyplot as plt

@@ -18,10 +18,18 @@ max_epoch = 4
 max_grad = 0.25
 
 # 读入训练数据
+#len(corpus)=929589,原始单词量；去重后：len(id_to_word)=len(word_to_id)=10000
 corpus, word_to_id, id_to_word = ptb.load_data('train')
+
+#len(corpus_test)=82430
 corpus_test, _, _ = ptb.load_data('test')
+
+#10000
 vocab_size = len(word_to_id)
+
+#取0~929587
 xs = corpus[:-1]
+#取 1~929586
 ts = corpus[1:]
 
 # 生成模型

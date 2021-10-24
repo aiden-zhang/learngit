@@ -116,12 +116,12 @@ class LSTM:
         Wx, Wh, b = self.params
         N, H = h_prev.shape
 
-        A = np.dot(x, Wx) + np.dot(h_prev, Wh) + b
+        A = np.dot(x, Wx) + np.dot(h_prev, Wh) + b #20x100*100x400 + 20x100*100x400 + 1x400
 
-        f = A[:, :H]
-        g = A[:, H:2*H]
-        i = A[:, 2*H:3*H]
-        o = A[:, 3*H:]
+        f = A[:, :H]      #10x100
+        g = A[:, H:2*H]   #20x100
+        i = A[:, 2*H:3*H] #20x100
+        o = A[:, 3*H:]    #20x100
 
         f = sigmoid(f)
         g = np.tanh(g)
@@ -132,7 +132,9 @@ class LSTM:
         h_next = o * np.tanh(c_next)
 
         self.cache = (x, h_prev, c_prev, i, f, g, o, c_next)
-        return h_next, c_next
+        
+        #20x100
+        return h_next, c_next  
 
     def backward(self, dh_next, dc_next):
         Wx, Wh, b = self.params
@@ -194,12 +196,14 @@ class TimeLSTM:
             self.c = np.zeros((N, H), dtype='f')
 
         for t in range(T):
-            layer = LSTM(*self.params)
+            layer = LSTM(*self.params) #一个TimeLSTM需要初始化35个LSTM
+            
+            #xs::20x35x100,一个TimeLSTM由35个LSTM单元构成,每个LSTM处理一个xs[:, t, :]::20x100
             self.h, self.c = layer.forward(xs[:, t, :], self.h, self.c)
             hs[:, t, :] = self.h
 
             self.layers.append(layer)
-
+        #TimeLSTM层计算胡hs::20x35x100
         return hs
 
     def backward(self, dhs):
@@ -287,7 +291,7 @@ class TimeAffine:
         rx = x.reshape(N*T, -1) #x::10x5x100 rx::10x100 为了加快计算把每一Time层的5个10x100的xs放在一起处理
         out = np.dot(rx, W) + b #50x100 * 100x418 + 1x418 ->out::50x418
         self.x = x
-        return out.reshape(N, T, -1) #昨晚矩阵乘法运算后reshape->重新变成10x5x418
+        return out.reshape(N, T, -1) #做完矩阵乘法运算后reshape->重新变成10x5x418
 
     def backward(self, dout):
         x = self.x
