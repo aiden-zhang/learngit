@@ -118,7 +118,7 @@ class LSTM:
 
         A = np.dot(x, Wx) + np.dot(h_prev, Wh) + b #20x100*100x400 + 20x100*100x400 + 1x400
 
-        f = A[:, :H]      #10x100
+        f = A[:, :H]      #20x100
         g = A[:, H:2*H]   #20x100
         i = A[:, 2*H:3*H] #20x100
         o = A[:, 3*H:]    #20x100

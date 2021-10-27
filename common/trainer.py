@@ -17,23 +17,23 @@ class Trainer:
         self.current_epoch = 0
 
     def fit(self, x, t, max_epoch=10, batch_size=32, max_grad=None, eval_interval=20):
-        data_size = len(x)
-        max_iters = data_size // batch_size
+        data_size = len(x) #45000
+        max_iters = data_size // batch_size #45000//128 = 351
         self.eval_interval = eval_interval
         model, optimizer = self.model, self.optimizer
         total_loss = 0
         loss_count = 0
 
         start_time = time.time()
-        for epoch in range(max_epoch):
+        for epoch in range(max_epoch):#max_epoch=1
             # 打乱
             idx = numpy.random.permutation(numpy.arange(data_size))
-            x = x[idx]
-            t = t[idx]
+            x = x[idx] #加法运算:45000x7  #日期转化:45000x29
+            t = t[idx] #加法运算:45000x5  #日期转化:45000x11
 
-            for iters in range(max_iters):
-                batch_x = x[iters*batch_size:(iters+1)*batch_size]
-                batch_t = t[iters*batch_size:(iters+1)*batch_size]
+            for iters in range(max_iters): #351
+                batch_x = x[iters*batch_size:(iters+1)*batch_size] #128x7  #128x29
+                batch_t = t[iters*batch_size:(iters+1)*batch_size] #128x5  #128x11
 
                 # 计算梯度，更新参数
                 loss = model.forward(batch_x, batch_t)

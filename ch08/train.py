@@ -1,4 +1,5 @@
 # coding: utf-8
+#任务是：将英语日期格式翻译成对应符合中文习惯的日期格式
 import sys
 sys.path.append('..')
 import numpy as np
@@ -9,11 +10,14 @@ from common.trainer import Trainer
 from common.util import eval_seq2seq
 from attention_seq2seq import AttentionSeq2seq
 from ch07.seq2seq import Seq2seq
-from ch07.peeky_seq2seq import PeekySeq2seq
+#from ch07.peeky_seq2seq import PeekySeq2seq
 
 
 # 读入数据
+#x_train::45000x29 t_train::45000x11 x_test::5000x29 t_test::5000x11
 (x_train, t_train), (x_test, t_test) = sequence.load_data('date.txt')
+
+#len(char_to_id)::59 len(id_to_char)::59
 char_to_id, id_to_char = sequence.get_vocab()
 
 # 反转输入语句

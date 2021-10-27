@@ -8,7 +8,9 @@ from ch08.attention_layer import TimeAttention
 
 class AttentionEncoder(Encoder):
     def forward(self, xs):
-        xs = self.embed.forward(xs)
+        xs = self.embed.forward(xs) #输入128x129 输出128x29x16
+        
+        #128x29x256
         hs = self.lstm.forward(xs)
         return hs
 
@@ -42,14 +44,14 @@ class AttentionDecoder:
             self.grads += layer.grads
 
     def forward(self, xs, enc_hs):
-        h = enc_hs[:,-1]
-        self.lstm.set_state(h)
+        h = enc_hs[:,-1] #输入128x29x256 输出128x256取了最后一个隐藏状态h
+        self.lstm.set_state(h) #设置到lstm的变量h中作为lstm.forward处理的输入参数
 
-        out = self.embed.forward(xs)
-        dec_hs = self.lstm.forward(out)
-        c = self.attention.forward(enc_hs, dec_hs)
-        out = np.concatenate((c, dec_hs), axis=2)
-        score = self.affine.forward(out)
+        out = self.embed.forward(xs) #输入128x10区别于编码器的输入，输出out::128x10x16
+        dec_hs = self.lstm.forward(out) 
+        c = self.attention.forward(enc_hs, dec_hs) #enc_hs:: 128x29x256 dec_hs::128x10x256  c::128x10x256
+        out = np.concatenate((c, dec_hs), axis=2) #out::128x10x512
+        score = self.affine.forward(out) #score::128x10x59
 
         return score
 
