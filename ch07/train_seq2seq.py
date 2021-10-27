@@ -14,7 +14,7 @@ from peeky_seq2seq import PeekySeq2seq
 
 
 # 读入数据集
-#共 5万条 x_train 45000条，x_test 5000条
+#共 5万条 x_train 45000(45000x7)条，x_test 5000条(5000x7) t_train(45000x5) t_test(5000x5)
 #x_train等数据都是字符对应的数字id，如:
 #x_train[0]: [3,  0,  2,  0,  0, 11,  5]::71+118
 #t_train[0]: [ 6,  0, 11,  7,  5]        ::_119

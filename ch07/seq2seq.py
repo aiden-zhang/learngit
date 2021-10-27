@@ -11,6 +11,8 @@ class Encoder:
         rn = np.random.randn
 
         embed_W = (rn(V, D) / 100).astype('f')
+        
+        #Wx和Wh都是包含f,g,i,o对应的权重，放在一起是为了加速计算，再
         lstm_Wx = (rn(D, 4 * H) / np.sqrt(D)).astype('f')
         lstm_Wh = (rn(H, 4 * H) / np.sqrt(H)).astype('f')
         lstm_b = np.zeros(4 * H).astype('f')
@@ -25,8 +27,8 @@ class Encoder:
     def forward(self, xs):
         xs = self.embed.forward(xs)
         hs = self.lstm.forward(xs)
-        self.hs = hs
-        return hs[:, -1, :]
+        self.hs = hs #128x7x128
+        return hs[:, -1, :]#取最后一个字符对应的隐藏层128x128
 
     def backward(self, dh):
         dhs = np.zeros_like(self.hs)
@@ -101,9 +103,10 @@ class Seq2seq(BaseModel):
         self.grads = self.encoder.grads + self.decoder.grads
 
     def forward(self, xs, ts):
-        decoder_xs, decoder_ts = ts[:, :-1], ts[:, 1:]
+        #分别取0~4列和1~5列
+        decoder_xs, decoder_ts = ts[:, :-1], ts[:, 1:] #加法128x4  日期转换128x10
 
-        h = self.encoder.forward(xs)
+        h = self.encoder.forward(xs) #128x128   日期转换128x29x256
         score = self.decoder.forward(decoder_xs, h)
         loss = self.softmax.forward(score, decoder_ts)
         return loss
