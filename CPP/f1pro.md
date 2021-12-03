@@ -3229,8 +3229,8 @@ int main() {
 
 构造函数调用规则如下：
 
-- 如果用户定义有参构造函数，c++不在提供默认无参构造，但是会提供默认拷贝构造
-- 如果用户定义拷贝构造函数，c++不会再提供其他构造函数 ??
+- 如果用户定义有参构造函数，c++不再提供默认无参构造，但是会提供默认拷贝构造
+- 如果用户定义拷贝构造函数，c++不会再提供其他构造函数 
 
 示例：
 
@@ -3317,67 +3317,66 @@ int main()
 
 #### 4.2.5 深拷贝与浅拷贝
 
-深拷贝是面试经典问题，也是常见的一个坑
+深拷贝是**面试经典问题**，也是常见的一个坑
 
 浅拷贝：简单的赋值拷贝操作
 
 深拷贝：在堆区重新申请空间，进行拷贝操作
 
 ```c++
-#include <iostream>
-using namespace std;
-
 //深拷贝与浅拷贝
 class Person
 {
 public:
-    Person(){
-        cout<<"Person的默认构造函数调用"<<endl;
-    }
-    Person(int age,int height)
-    {
-        m_Height=new int(height);
-        m_Age=age;
-        cout<<"Person的有参构造函数调用"<<endl;
-    }
-    //实现拷贝构造函数 解决浅拷贝带来的问题
-    Person(const Person &p)
-    {
-        cout<<"Person的有参构造函数调用"<<endl;
-        m_Age=p.m_Age;
-        //m_Height=p.,_Height;编译器默认实现这是这行代码
-        //深拷贝操作
-        m_Height=new int (*p.m_Height);
-    }
-    ~Person(){
-        //析构函数将堆区开辟的数据做释放操作
-        //浅拷贝带来的问题就是堆区的内存重复释放
-        if(m_Height!=NULL)
-        {
-            delete m_Height;
-            m_Height=NULL;
-        }
-        cout<<"Person的析构函数调用"<<endl;
-    }
-    int m_Age;
-    int *m_Height;
+	Person(){
+		cout << "Person的默认构造函数调用" << endl;
+	}
+	Person(int age, int height)
+	{
+		m_Height = new int(height);
+		m_Age = age;
+		cout << "Person的有参构造函数调用" << endl;
+	}
+	//实现拷贝构造函数 解决浅拷贝带来的问题
+	Person(const Person &p)
+	{
+		cout << "Person的拷贝构造函数调用" << endl;
+		m_Age = p.m_Age;
+		//m_Height=p.m_Height;//编译器默认执行的拷贝构造函数里是执行这行代码，这样程序会对同一个地址析构两次从而崩溃
+
+		//深拷贝操作：先申请内存在拷贝值
+		m_Height = new int(*p.m_Height);
+	}
+	~Person(){
+		//析构函数将堆区开辟的数据做释放操作
+		//浅拷贝带来的问题就是堆区的内存重复释放
+		if (m_Height != NULL)
+		{
+			delete m_Height;
+			m_Height = NULL;
+		}
+		cout << "Person的析构函数调用" << endl;
+	}
+	int m_Age;
+	int *m_Height;
 };
 void test01(){
-    Person p1(10,170);
-    cout<<"p1的年龄为："<<p1.m_Age<<"p1的身高为："<<*p1.m_Height<<endl;
+	Person p1(10, 170);
+	cout << "p1的年龄为：" << p1.m_Age << "p1的身高为：" << *p1.m_Height << endl;
 
-    Person p2(p1);
-    //如果利用编译器提供的拷贝构造函数，会做浅拷贝操作
-    cout<<"p2的年龄为："<<p2.m_Age<<"p2的身高为："<<*p2.m_Height<<endl;
+	Person p2(p1);
+	//如果利用编译器提供的拷贝构造函数，会做浅拷贝操作
+	cout << "p2的年龄为：" << p2.m_Age << "p2的身高为：" << *p2.m_Height << endl;
 }
 int main() {
-    test01();
-    system("pause");
-    return 0;
-}	
+	test01();
+	system("pause");
+
+	return 0;
+}
 ```
 
-> 总结：如果属性有在堆区开辟的，一定要提供拷贝构造函数，防止浅拷贝带来的问题
+> 总结：如果属性有在**堆区**开辟的，一定要提供拷贝构造函数，防止浅拷贝带来的问题
 
 #### 4.2.6 初始化列表
 
@@ -3438,46 +3437,57 @@ calss B
 B类中有A作为成员，A为对象成员
 
 ```c++
-#include <iostream>
+#include "string"
 using namespace std;
 
-#include "string"
-class Phone{
+
+
+
+class Phone
+{
 public:
-    Phone(string pName){
-        m_pName=pName;
-    }
-    string m_pName;
+	Phone(string Name)
+	{
+		cout << "Phone的构造函数调用" << endl;
+		m_PhoneName = Name;
+	}
+	~Phone()
+	{
+		cout << "Phone的析构函数调用" << endl;
+	}
+	string m_PhoneName;
 };
 class Person
 {
 public:
-    //Phone m_Phone=p.Name  隐式转换法
-    Person(string name,string pName):m_Name(name),m_Phone(pName){
-        cout<<"Person的构造函数调用"<<endl;
-    }
-    ~Person(){
-        cout<<"Person的析构函数调用"<<endl;
-    }
-    string m_Name;
-    Phone m_Phone;
+	//Phone m_Phone=p.Name  隐式转换法
+	Person(string name, string phoneName) :p_Name(name), p_Phone(phoneName)
+	{
+		cout << "Person的构造函数调用" << endl;
+	}
+	~Person(){
+		cout << "Person的析构函数调用" << endl;
+	}
+	string p_Name;
+	Phone p_Phone;
 
 };
-//当其他类对象作为本类成员，构造是先够着类对象，再构造自身，析构的顺序与构造想反
+//当其他类对象作为本类成员，构造是先构造类对象，再构造自身，析构的顺序与构造想反
 void test01(){
-    Person p("张三","vivo xs");
-    cout<<p.m_Name<<"拿着"<<p.m_Phone.m_pName<<endl;
+	Person p("张三", "vivo xs");
+	cout << p.p_Name << "拿着" << p.p_Phone.m_PhoneName << endl;
 }
-int main() {
-    test01();
-    system("pause");
-    return 0;
+int main() 
+{
+	test01();
+	system("pause");
+	return 0;
 }
 ```
 
 #### 4.2.8 静态成员
 
-静态成员就是在成员变量和成员函数钱加上关键static，称为静态成员
+静态成员就是在成员变量和成员函数前加上关键static，称为静态成员
 
 静态成员分为：
 
@@ -3516,13 +3526,13 @@ public:
     int m_B;//非静态成员变量
 };
 int Person::m_A=0;
-//当其他类对象作为本类成员，构造是先够着类对象，再构造自身，析构的顺序与构造想反
+
 void test01(){
     //通过对象访问
     Person p;
     p.func();
 
-    //通过类名访问
+    //只有静态函数可以通过类名访问
     Person::func();
 }
 int main() {
@@ -3574,7 +3584,7 @@ int main() {
 
 c++中成员变量和成员函数是分开储存的
 
-没一个非静态成员函数只会诞生一份实例，也就是说多个同类型的对象会共用一块代码，
+每一个非静态成员函数只会诞生一份实例，也就是说多个同类型的对象会共用一块代码，
 
 c++通过提供特殊的对象指针，this指针，来调用或区分自己
 
@@ -3620,7 +3630,7 @@ void test01(){
 void test02(){
     Person p1(10);
     Person p2(10);
-    //链式编程
+    //链式编程，每次调用PersonsonAddAGe都返回p2这个实体自身
     p2.PersonsonAddAGe(p1).PersonsonAddAGe(p1).PersonsonAddAGe(p1);
     cout<<"p2的年龄为："<<p2.age<<endl;
 }
@@ -3639,39 +3649,42 @@ c++中空指针也是可以调用成员函数的，但是也要注意有没有�
 如果用到this指针，需要加以判断保证代码的健壮性
 
 ```c++
-#include <iostream>
-using namespace std;
-
 #include "string"
 
 class Person
 {
 public:
-  void showClassName()
-  {
-      cout<<"this is Person class"<<endl;
-  }
-  void showPersonAge()
-  {
-      //报错原因是因为传入的指针是为NULL
-      if(this==NULL){
-          return;
-      }
-      cout<<"age="<<this->m_age<<endl;
-  }
-  int m_age;
+	Person()
+	{
+		cout << "构造函数" << endl;
+	}
+	void showClassName()
+	{
+		cout << "this is Person class" << endl;
+	}
+	void showPersonAge()
+	{
+		//报错原因是因为传入的指针是为NULL
+		if (this == NULL){
+			return;
+		}
+		cout << "age=" << this->m_age << endl;
+	}
+	int m_age;
 };
 //解决名称冲突
 void test01(){
-    Person *p=NULL;
-    p->showClassName();
-    p->showPersonAge();
+	Person p1;//会进构造函数
+	Person *p = NULL;//不会进，但不知道为什么？？
+    Person *p2 = new Person;//会进构造
+	p->showClassName();
+	p->showPersonAge();
 }
 
 int main() {
-    test01();
-    system("pause");
-    return 0;
+	test01();
+	system("pause");
+	return 0;
 }
 ```
 
@@ -3679,9 +3692,9 @@ int main() {
 
 常函数：
 
-- 成员函数后加const后我们称为这个函数为常函数
+- 成员函数后加const后我们称这个函数为常函数
 - 常函数内不可以修改成员属性
-- 成员属性声明是加关键字mutable后，在常函数中依然可以修改
+- 成员属性声明时若加了关键字mutable后，在常函数中依然可以修改
 
 常对象：
 
@@ -3689,47 +3702,45 @@ int main() {
 - 常对象只能调用常函数
 
 ```c++
-#include <iostream>
-using namespace std;
-
 #include "string"
 
 class Person
 {
 public:
-    //this指针的本质  是指针常量  指针的指向是不可以修改的
-    //const Person * const this
-    //在成员函数后面加const，修饰的是this指向，让指针指向的值也不可以修改
-  void showPerson() const{
-    //m_A=100;
-    //this=NULL;//this指针不可以修改指针的指向的
-    this->m_B=100;
-  }
-  void func(){
-        m_A=100;
-    }
-  int m_A;
-  mutable int m_B;//特殊变量，即时在长韩仲，也可以修改这个值，加上关键字mutable
+	//this指针的本质  是指针常量  指针的指向是不可以修改的
+	//const Person * const this
+	//在成员函数后面加const，修饰的是this指向，让指针指向的值也不可以修改
+	void showPerson() const
+	{
+		//m_A=100;//会报错，因为常成员函数中不能修改成员属性
+		//this=NULL;//this指针不可以修改指针的指向的
+		this->m_B = 100;//因为加了mutable，所以可以修改
+	}
+	void func(){
+		m_A = 100;
+	}
+	int m_A;
+	mutable int m_B;//特殊变量，即时在长韩仲，也可以修改这个值，加上关键字mutable
 };
 
 void test01(){
-    Person p;
-    p.showPerson();
+	Person p;
+	p.showPerson();
 }
 //常对象
-//void test02(){
-//    const Person p1;//在对象前加const，编程常对象
-////    p.m_A=100;
-//    p1.m_B=100;//m_B是特殊值，在对象下也可以修改
-//    //常对象只能调用常函数
-//    p1.showPerson();
-////    p.func();//不能调用普通成员函数，因为不能修改
-//}
+void test02(){
+    const Person p1;//在对象前加const，变成常对象
+	//p1.m_A=100;//会报错
+    p1.m_B=100;//m_B是特殊值，在对象下也可以修改
+    //常对象只能调用常函数
+    p1.showPerson();
+	//p1.func();//会报错，不能调用普通成员函数，因为不能修改
+}
 int main() {
-    test01();
-//    test02();
-    system("pause");
-    return 0;
+	test01();
+	test02();
+	system("pause");
+	return 0;
 }
 ```
 
@@ -3743,7 +3754,7 @@ int main() {
 
 在程序里，有些私有属性 也想让类外特殊的一些函数或者类进行访问，就需要用到友元的技术
 
-友元的目的就是让一个函数或者类 访问另一个类中私有成员
+**友元的目的就是让一个函数或者类 访问另一个类中私有成员**
 
 友元的关键字为friend
 
@@ -3796,50 +3807,55 @@ int main() {
 ```c++
 #include <iostream>
 using namespace std;
-
 #include "string"
+
 //类做友元
 class Building;
 
 class GoodGay
 {
 public:
-    GoodGay();
-    void visit();//参观函数， 访问Building中的属性
-    Building *building;
+	GoodGay();
+	void visit();//参观函数， 访问Building中的属性
+	Building *building;
 };
 
 class Building{
-    //GoodGay类时本来的好基友。可以访问本类中私有成员
-    friend class GoodGay;
+	//GoodGay类是Building的好基友。可以访问本类(Building)中私有成员
+	friend class GoodGay;
 public:
-    Building();
+	Building();
 public:
-    string m_SittingRoom;
+	string m_SittingRoom;
 private:
-    string m_BedRoom;
+	string m_BedRoom;
 };
+
 //类外写成员函数
 Building::Building() {
-    m_SittingRoom="客厅";
-    m_BedRoom="卧室";
+	m_SittingRoom = "客厅";
+	m_BedRoom = "卧室";
 }
+
+//类外写成员函数
 GoodGay::GoodGay() {
-    //创建建筑物对象
-    building=new Building;
+	//创建建筑物对象
+	building = new Building;//会进构造函数
 }
+
+//类外写成员函数
 void GoodGay::visit() {
-    cout<<"好基友类正在访问："<<building->m_SittingRoom<<endl;
-    cout<<"好基友类正在访问："<<building->m_BedRoom<<endl;
+	cout << "好基友类正在访问：" << building->m_SittingRoom << endl;
+	cout << "好基友类正在访问：" << building->m_BedRoom << endl;
 }
 void test01(){
-    GoodGay gg;
-    gg.visit();
+	GoodGay gg;
+	gg.visit();
 }
 int main() {
-    test01();
-    system("pause");
-    return 0;
+	test01();
+	system("pause");
+	return 0;
 }
 ```
 
