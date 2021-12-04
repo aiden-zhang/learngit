@@ -480,19 +480,19 @@ int main(){
 
 算术运算符包括以下符号：
 
-| 运算符 | 术语         | 示例       | 结果    |
-| ------ | ------------ | ---------- | ------- |
-| +      | 正号         | +3         | 3       |
-| =      | 负号         | -3         | -3      |
-| +      | 加           | 10+5       | 15      |
-| -      | 减           | 10-5       | 5       |
-| *      | 乘           | 10*5       | 50      |
-| /      | 除           | 10/5       | 2       |
-| %      | 取模（取余） | 10%3       | 1       |
-| ++     | 前置递增     | a=2；b=++a | a=3;b=3 |
-| ++     | 后置递增     | a=2；b=a++ | a=3;b=2 |
-| --     | 前置递减     | a=2；b=--a | a=1;b=1 |
-| --     | 后置递减     | a=2;b=a--; | a=1;b=2 |
+| 运算符 | 术语         | 示例          | 结果    |
+| ------ | ------------ | ------------- | ------- |
+| +      | 正号         | +3            | 3       |
+| =      | 负号         | -3            | -3      |
+| +      | 加           | 10+5          | 15      |
+| -      | 减           | 10-5          | 5       |
+| *      | 乘           | 10*5          | 50      |
+| /      | 除           | 10/5          | 2       |
+| %      | 取模（取余） | 10%3          | 1       |
+| ++     | 前置递增     | a=2；b=++a    | a=3;b=3 |
+| ++     | 后置递增     | a=2；b=a++    | a=3;b=2 |
+| --     | 前置递减     | a=2；b=--a    | a=1;b=1 |
+| --     | 后置递减     | a=2;   b=a--; | a=1;b=2 |
 
 > - 两个整数相除结果依然是整数
 > - 除数不可以为0
@@ -4122,7 +4122,7 @@ public:
         }
     }
     //重载 赋值运算符
-    Person& operator=(Person &p)
+    Person& operator=(Person &p) //为什么返回必须是引用
     {
         //编译器是提供了浅拷贝
         //m_Age=p.m_Age;
@@ -4143,7 +4143,7 @@ void test01(){
     Person p1(18);
     Person p2(20);
     Person p3(30);
-    p1=p2=p3;
+    p1=p2=p3; //执行顺序的从右向左
     cout<<"p1年龄为："<<*p1.m_Age<<endl;
     cout<<"p2年龄为："<<*p2.m_Age<<endl;
     cout<<"p3年龄为："<<*p3.m_Age<<endl;
@@ -4451,20 +4451,21 @@ public:
 };
 
 
-void test01(){
-    //Base b;
+void test01()
+{
     //继承中的构造和析构顺序如下：
     //先构造父类，在构造子类，析构的顺序与构造的顺序相反
     Son s;
 }
-int main() {
+int main() 
+{
     test01();
     system("pause");
     return 0;
 }
 ```
 
-#### 4.6.5 继承同名成员处理方式
+#### 4.6.5 继承中同名成员处理方式
 
 问题：当子类与父类出现同名的成员，如何通过子类对象访问到子类或父类中同名的数据呢？
 
@@ -4524,14 +4525,14 @@ int main() {
 总结：
 
 - 子类对象可以直接访问到子类中同名成员
-- 子类对象加作用域可以访问到父类同名成员
-- 当子类与父类拥有同名的成员函数，子类会隐藏父类中同名成员函数，加作用域还可以访问到父类中同名函数
+- 子类对象**加作用域**才可以访问到父类同名成员
+- 当子类与父类拥有同名的成员函数，子类会隐藏父类中同名成员函数，**加作用域**才可以访问到父类中同名函数
 
-#### 4.6.6 继承同名静态成员处理方式
+#### 4.6.6 继承中同名静态成员处理方式
 
 问题：继承中同名的静态成员在子类对象上如何进行访问？
 
-静态成员和非静态成员出现同名，处理方式一致
+静态成员和非静态成员出现同名，处理方式一致；但与非静态成员不同的是静态成员可**通过类名访问**
 
 - 访问子类同名成员  直接访问即可
 - 访问父类同名成员 需要加作用域
@@ -4614,7 +4615,8 @@ public:
 class Base2
 {
 public:
-    Base2(){
+    Base2()
+    {
         m_A=200;
     }
     int m_A;
@@ -4623,7 +4625,8 @@ public:
 class Son:public Base1,public Base2
 {
 public:
-    Son(){
+    Son()
+    {
         m_C=300;
         m_D=400;
     }
@@ -4631,7 +4634,8 @@ public:
     int m_D;
 };
 
-void test02(){
+void test02()
+{
     Son s;
     cout<<"sizeof Son="<< sizeof(s)<<endl;
     cout<<"m_C="<< s.m_C<<endl;
@@ -4673,8 +4677,8 @@ class Tuo :virtual public Animal{};
 class SheepTuo :public Sheep,public Tuo{};
 void test02(){
     SheepTuo st;
-    st.Sheep::m_Age=18;
-    st.Tuo::m_Age=28;
+    st.Sheep::m_Age=18; //访问的是同一个变量，因此最终打印全是28
+    st.Tuo::m_Age=28;   //访问的是同一个变量，因此最终打印全是28
     cout<<"st.Sheep::m_Age ="<<st.Sheep::m_Age<<endl;
     cout<<"st.Tuo::m_Age ="<<st.Tuo::m_Age<<endl;
     cout<<"st.m_Age ="<<st.m_Age<<endl;
@@ -4715,28 +4719,28 @@ using namespace std;
 class Animal
 {
 public:
-    //虚函数
-    virtual void speak()
-    {
-        cout<<"动物在说话"<<endl;
-    }
+	//虚函数，父类中虚函数实现是毫无意义的，因此这里可改为纯虚函数
+	virtual void speak()//若不加virtual则cat 和dog都是调用animal
+	{
+		cout << "动物在说话" << endl;
+	}
 };
 //猫类
 class Cat :public Animal
 {
 public:
-    //重写  函数返回值类型  函数名  参数列表  完全相同
-    virtual void speak()
-    {
-        cout<<"小猫在说话"<<endl;
-    }
+	//重写  函数返回值类型  函数名  参数列表  完全相同
+	void speak() //可加virtual可不加，效果一样？
+	{
+		cout << "小猫在说话" << endl;
+	}
 };
 //狗类
 class Dog :public Animal
 {
-   void speak(){
-       cout<<"小狗在说话"<<endl;
-   }
+	void speak() {
+		cout << "小狗在说话" << endl;
+	}
 };
 //执行说话的函数
 //地址早绑定 在编译阶段确定函数地址
@@ -4747,22 +4751,23 @@ class Dog :public Animal
 //2.子类重写父类的虚函数
 
 //动态多态使用
-//父类的指针或者引用 指向子类对象
+//3.父类的指针或者引用 指向子类对象
 void doSpeak(Animal &animal) //Animal &animal=cat;
 {
-    animal.speak();
+	animal.speak();
 }
-void test01(){
-    Cat cat;
-    doSpeak(cat);
+void test01() {
+	Cat cat;
+	doSpeak(cat);
 
-    Dog dog;
-    doSpeak(dog);
+	Dog dog;
+	doSpeak(dog);
 }
 int main() {
-    test01();
-    system("pause");
-    return 0;
+	test01();
+	system("pause");
+
+	return 0;
 }
 ```
 
@@ -4907,16 +4912,16 @@ int main() {
 
 #### 4.7.3 纯虚函数和抽象类
 
-在多态中，通常父类中虚函数的实现是毫无意义的，主要都是调用子类重写的内容
+在多态中，通常**父类中虚函数的实现是毫无意义**的，主要都是调用子类重写的内容
 
-因此可以将虚函数改为纯虚函数
+因此可以将虚函数改为**纯虚函数**
 
 纯虚函数语法：virtual  返回值类型  函数名  (参数列表)=0；
 
 抽象类特点：
 
 - 无法实例化对象
-- 子类必须重写抽象类中的纯虚函数，否则也书序抽象类
+- 子类必须重写抽象类中的纯虚函数，否则也属于抽象类
 
 ```c++
 #include <iostream>
@@ -4935,11 +4940,13 @@ public:
 class Son :public Base
 {
 public:
-    virtual void func(){
+    virtual void func()
+    {
         cout<<"func函数调用"<<endl;
     };
 };
-void test01(){
+void test01()
+{
     //Son s;//子类必须重写父类中的纯虚函数，否则也属于抽象类
     Base *base=new Son;
     base->func();
@@ -5088,7 +5095,7 @@ public:
 //    }
     //纯虚析构
     //有了纯虚析构之后，这个类也属于抽象类，无法实例化对象
-    virtual ~Animal() =0;
+    virtual ~Animal() =0;//这里写成虚函数也可以实现统一效果
     //纯虚函数
     virtual void speak()=0;
 };
@@ -5131,7 +5138,7 @@ int main() {
 
 总结：
 
-> 1.虚析构后纯虚析构就是用来解决通过父类指针释放子类对象
+> 1.虚析构和纯虚析构就是用来解决通过父类指针无法释放子类对象的问题
 >
 > 2.如果子类中没有堆区数据，可以不写为虚析构或纯虚析构
 >
@@ -5648,7 +5655,7 @@ int main() {
 
 注意事项：
 
-- 自动类型推导，必须推导出一只的数据类型T，才可以使用
+- 自动类型推导，必须推导出一致的数据类型T，才可以使用
 - 模板必须要确定出T的数据类型，才可以使用
 
 ```c++
@@ -5668,7 +5675,7 @@ void test01(){
     int b=20;
     //char c='c'
     mySwap(a,b);//正确！
-    //mySwap(a,c);//错误！推导不出一只的T类型
+    //mySwap(a,c);//错误！推导不出一致的T类型
     cout<<"a="<<a<<endl;
     cout<<"b="<<b<<endl;
 }
@@ -5926,7 +5933,7 @@ bool myCompare(T &a,T &b)
     }
 }
 //利用具体化Person的版本实现代码，具体化优先调用
-template<> bool myCompare(Person &p1,Person &p2)
+template<> bool myCompare(Person &p1,Person &p2)//前面加的有什么意义？
 {
     if(p1.m_Name==p2.m_Name &&p1.m_Age==p2.m_Age)
     {
@@ -6025,7 +6032,7 @@ public:
 };
 void test01()
 {
-    Person<string,int> p1("孙悟空",999);
+    Person<string,int> p1("孙悟空",999);//类模板，参数列表必须有，不能自动类型推导
     p1.showPerson();
 }
 int main() {
@@ -6041,7 +6048,7 @@ int main() {
 
 类模板与函数模板区别主要有两点
 
-- 类模板没有自动类型推导的使用方式
+- **类模板没有自动类型推导的使用方式**
 - 类模板在模板参数列表中可以有默认参数
 
 示例：
@@ -6183,6 +6190,7 @@ void printPerson2(Person<T1,T2>&p)
 void test02()
 {
     Person<string,int>p("猪八戒",90); 
+    printPerson2(p);
 }
 //3、整个类模板化
 template<class T>
@@ -6444,7 +6452,7 @@ class Person
     //全局函数  类外实现
     //加空模板参数列表
     //如果全局函数是类外实现，需要让编译器提前知道这个函数的存在
-    friend void printPerson2<>(Person<T1,T2> p);
+    friend void printPerson2<>(Person<T1,T2> p);//实测必须要这个<>但不知有什么用？
 public:
     Person(T1 name,T2 age)
     {
@@ -6839,7 +6847,8 @@ using namespace std;
 #include <vector>
 #include <string>
 //vector容器中存放自定义数据类型
-class Person{
+class Person
+{
 public:
     Person(string name,int age)
     {
@@ -11919,7 +11928,23 @@ int main(){
 - 目标容器开辟空间需要从两个容器取较大值
 - set_difference返回值即是差集中最后一个元素的位置
 
+# 四、总结
 
+## 1  运算符重载
+
+4.5节运算符重载有哪些是返回引用，为什么必须是引用？还有哪些情况下需要返回引用？
+
+## 2 this指针
+
+同一个类的不同对象this指针地址相同吗？
+
+## 3.多态
+
+形成多态时父类函数前必须加virtual，子类同名函数到底加不加virtual，有什么讲究？
+
+## 4.类模板
+
+1.38友元函数声明处的<>是什么用？
 
 
 
