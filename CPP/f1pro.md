@@ -11954,8 +11954,135 @@ int main(){
 实现多态，有二种方式，覆盖，重载。
 
 -   覆盖，当子类重新定义了父类的虚函数后，父类指针根据赋给它的不同的子类指针，动态（记住：是动态！）的调用属于子类的该函数，这样的函数调用在编译期间是无法确定的（调用的子类的虚函数的地址无法给出）。因此，这样的函数地址是在运行期绑定的（晚邦定）。
-
 -   重载，是指允许存在多个同名函数，而这些函数的参数表不同（或许参数个数不同，或许参数类型不同，或许两者都不同）。-- 早绑定，其实严格来说不算多态
+
+例子1：
+
+```c++
+#include <iostream>
+ 
+using namespace std;
+ 
+class Vehicle {
+public:
+    virtual void run() const= 0;
+};
+ 
+class Car:public Vehicle {
+public:
+    void run() const{
+        cout << "run a car" << endl;
+    }
+};
+ 
+class Airplane :public Vehicle {
+public:
+    void run() const {
+        cout << "run a airplane" << endl;
+    }
+};
+ 
+void run_vehicle(const Vehicle *test) {
+    test->run();
+}
+ 
+int main(void) {
+    Car car;
+    Airplane airplane;
+    run_vehicle(&car);
+    run_vehicle(&airplane);
+    return 0;
+}
+```
+
+客户程序可以通过指向基类的指针或引用来使用派生类对象的方法
+
+
+
+例子2：
+
+```c++
+/*括号生成
+数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合*/
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+//#include <stddef.h>
+
+#include <vector>
+#include <ctype.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <algorithm>
+#include <iostream>
+#include "string"
+using namespace std;
+
+#include <iostream>
+
+using namespace std;
+
+class Vehicle {
+public:
+	virtual void run() const = 0;
+	virtual void func1(int a) //无virtural会调用基类；有virtual 但参数类型不同也会调用基类；有virtual 参数个数不同会报错；有virtual 参数类型(包含个数)也相同才会有多态
+	{
+		cout << "Vehicle func1" << endl;
+	}
+};
+
+class Car :public Vehicle {
+public:
+	void run() const{
+		cout << "run a car" << endl;
+	}
+
+	void func1(int val)
+	{
+		cout << "Car func1" << endl;
+	}
+};
+
+class Airplane :public Vehicle {
+public:
+	void run() const {
+		cout << "run a airplane" << endl;
+	}
+
+	void func1(int val)
+	{
+		cout << "Airplane func1" << endl;
+	}
+};
+
+void run_vehicle(const Vehicle *test) {
+	test->run();
+}
+
+void run_vehicle(const Vehicle &test) {
+	test.run();
+}
+
+int main(void) {
+	Car car;
+	Airplane airplane;
+	run_vehicle(&car);
+	run_vehicle(&airplane);
+
+	run_vehicle(car);
+	run_vehicle(airplane);
+
+	Vehicle* vehicleOne = new Car;
+	Vehicle* vehicleTwo = new Airplane;
+	vehicleOne->func1(5);
+	vehicleTwo->func1(6);
+	return 0;
+}
+```
+
+
 
 ## 4.类模板
 
@@ -12077,4 +12204,98 @@ int main()
 
 
 
+
+## 11.左值引用于右值引用
+
+## 12 overload(重载) override(覆盖) overwrite(改写)
+
+参考：
+
+https://www.cnblogs.com/kuliuheng/p/4107012.html
+
+### 1.overload
+
+函数重载是指在同一作用域内，可以有一组具有相同函数名，不同参数列表的函数，这组函数被称为重载函数。重载函数通常用来命名一组功能相似的函数，这样做减少了函数名的数量，避免了名字空间的污染，对于程序的可读性有很大的好处。
+
+**（1）**可以是全局函数的重载也可以是类中不同同名的不同成员函数
+
+  **(2)**  产生重载的条件是函数名相同、参数列表类型或(和)数目不同，注意返回仅仅返回值不同不构成重载，函数编译会报错
+
+典型用处： 构造函数重载；操作符重载，本质上就是函数重载
+
+例子：
+
+```c++
+
+```
+
+
+
+### 2.override
+
+覆盖的概念其实是用来实现C++多态性的，即子类重新改写父类声明为virtual的函数
+
+**（1）**不同的范围（分别位于派生类与基类）；
+**（2）**函数名字相同；
+**（3）**参数列表完全相同；
+**（4）**基类函数必须有virtual 关键字，派生类的virtual可有可无。
+
+例子：
+
+```c++
+
+```
+
+
+
+### 3.overwrite
+
+改写是指派生类的函数屏蔽（或者称之为“隐藏”）了与其同名的基类函数，正是这个C++的隐藏规则使得问题的复杂性陡然增加，这里面分为两种情况讨论：
+
+**（1）**如果派生类的函数与基类的函数同名，但是参数不同。那么此时，**不论有无virtual关键字**，基类的函数将被隐藏（注意别与重载混淆）。
+**（2）**如果派生类的函数与基类的函数同名，并且参数也相同，但是**基类函数没有virtual关键字**。那么此时，基类的函数被隐藏（注意别与覆盖混淆）。
+
+例子：
+
+```c++
+#include <iostream>
+using namespace std;
+
+class Base
+{
+public:
+    virtual void f(float x){ cout << "Base::f(float) " << x << endl; }
+    virtual void g(float x){ cout << "Base::g(float) " << x << endl; }
+    void h(float x){ cout << "Base::h(float) " << x << endl; }
+};
+
+class Derived : public Base
+{
+public:
+    virtual void f(float x){ cout << "Derived::f(float) " << x << endl; }
+    virtual void g(int x){ cout << "Derived::g(int) " << x << endl; }
+    void h(float x){ cout << "Derived::h(float) " << x << endl; }
+};
+
+int main()
+{
+    Derived  d;
+    Base *pb = &d;
+    Derived *pd = &d;
+
+    // Good : behavior depends solely on type of the object
+    pb->f(3.14f); // Derived::f(float) 3.14
+    pd->f(3.14f); // Derived::f(float) 3.14
+
+    // Bad : behavior depends on type of the pointer
+    pb->g(3.14f); // Base::g(float) 3.14 (surprise!)
+    pd->g(3.14f); // Derived::g(int) 3
+
+    // Bad : behavior depends on type of the pointer
+    pb->h(3.14f); // Base::h(float) 3.14  (surprise!)
+    pd->h(3.14f); // Derived::h(float) 3.14
+
+    return 0;
+}
+```
 
