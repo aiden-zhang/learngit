@@ -1,4 +1,4 @@
-# 一、c++基础
+# c一、c++基础
 
 ## 1 c++初识
 
@@ -4732,8 +4732,8 @@ public:
 class Cat :public Animal
 {
 public:
-	//重写  函数返回值类型  函数名  参数列表  完全相同
-	void speak() //可加virtual可不加，效果一样？
+	//重写  函数返回值类型  函数名  参数列表  完全相同-->函数要一模一样
+	void speak() //可加virtual可不加，效果一样
 	{
 		cout << "小猫在说话" << endl;
 	}
@@ -4915,7 +4915,7 @@ int main() {
 
 #### 4.7.3 纯虚函数和抽象类
 
-在多态中，通常**父类中虚函数的实现是毫无意义**的，主要都是调用子类重写的内容
+在多态中，通常**父类中虚函数的实现是毫无意义**的(父类虚析构函数除外)，主要都是调用子类重写的内容
 
 因此可以将虚函数改为**纯虚函数**
 
@@ -4923,8 +4923,13 @@ int main() {
 
 抽象类特点：
 
-- 无法实例化对象
+- **无法实例化对象**
+
 - 子类必须重写抽象类中的纯虚函数，否则也属于抽象类
+
+- 类中只要有一个纯虚函数都算抽象类
+
+  
 
 ```c++
 #include <iostream>
@@ -5079,6 +5084,8 @@ int main() {
 
 **类名::~类名(){}**
 
+例子1：
+
 ```c++
 #include <iostream>
 using namespace std;
@@ -5096,7 +5103,7 @@ public:
 //    virtual ~Animal(){
 //        cout<<"animal析构函数调用"<<endl;
 //    }
-    //纯虚析构
+    //纯虚析构-->基类纯虚函数必须要提供一个定义(实现)，否则编译器会报错
     //有了纯虚析构之后，这个类也属于抽象类，无法实例化对象
     virtual ~Animal() =0;//这里写成虚函数也可以实现统一效果
     //纯虚函数
@@ -5139,13 +5146,71 @@ int main() {
 }
 ```
 
-总结：
+例子2：
 
-> 1.虚析构和纯虚析构就是用来解决通过父类指针无法释放子类对象的问题
+```c++
+
+#include <vector>
+#include<time.h>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+
+class Base
+{
+public:
+	Base() { mPtr = new int; cout << "Base::Construction" << endl;}
+	virtual ~Base() = 0;//{ delete mPtr; cout << "Base::Destruction" << endl; }
+private:
+	int* mPtr;
+};
+
+Base::~Base() { cout << "Base virtual Destruction" << endl; };
+
+class Derived : public Base
+{
+public:
+	Derived() { mDerived = new long; cout << "Derived::Construction" << endl;
+	}
+	~Derived() { delete mDerived; cout << "Derived::Destruction" << endl; }
+private:
+	long* mDerived;
+};
+
+int main()
+{
+	Base* p = new Derived();
+	delete p;
+	return 0;
+}
+结果打印：
+Base::Construction
+Derived::Construction
+Derived::Destruction
+Base virtual Destruction
+    
+注意：若父类的析构不写成虚函数或纯虚函数，则析构使只执行父类的析构，不执行子类的析构，结果如下：
+Base::Construction
+Derived::Construction
+Base virtual Destruction
+```
+
+**总结：**
+
+为什么父类析构函数需要为虚函数？
+
+> 1、如果父类的析构函数不是虚函数，则不会触发动态绑定（多态），结果就是只会调用父类的析构函数，而不会调用子类的析构函数，从而可能导致子类的内存泄漏（如果子类析构函数中存在free delete 等释放内存操作时）；
 >
-> 2.如果子类中没有堆区数据，可以不写为虚析构或纯虚析构
+> 2、如果父类的析构函数是虚函数，则子类的析构函数一定是虚函数（即使是子类的析构函数不加virtual,这是C++的语法规则），则会在父类指针或引用指向一个子类时，触发动态绑定（多态），析构实例化对象时，若是子类则会执行子类的析构函数，同时，编译器会在子类的析构函数中插入父类的析构函数，最终实现了先调用子类析构函数再调用父类析构函数；
 >
-> 3.拥有纯虚析构函数的类也属于抽象类
+> 3.如果子类中没有堆区数据，父类可以不写为虚析构或纯虚析构；
+>
+> 4.拥有纯虚析构函数的类也属于抽象类；
+>
+> 4.父类的纯虚函数必须进行定义，只写成 virtual ~Base() = 0; 编译器会报错。
+
+
 
 #### 4.7.6 多态案例三，电脑组装
 
@@ -11949,7 +12014,52 @@ int main(){
 
 形成多态时父类函数前必须加virtual，子类同名函数到底加不加virtual，有什么讲究？
 
+**基类中定义的virtual虚函数，在继承子类中同名函数自动都属于虚函数，可以不需要virtual关键字。**
 
+**如果基类中定义的函数不是virtual，而子类中又将相同函数定义为virtual，则称之为越位，函数行为依赖于指针/引用的类型，而不是实际对象的类型。下面是例子：**
+
+```c++
+#include<iostream>
+using namespace std;
+
+class Base
+{
+public:
+    void f(){ cout << "Base::f() " << endl; }
+    virtual void g(){ cout << "Base::g() " << endl; }
+};
+
+class Derived : public Base
+{
+public:
+    virtual void f(){ cout << "Derived::f() " << endl; }
+    void g(){ cout << "Derived::g() " << endl; }
+};
+
+class VirtualDerived : virtual public Base
+{
+public:
+    void f(){ cout << "VirtualDerived::f() " << endl; }
+    void g(){ cout << "VirtualDerived::g() " << endl; }
+};
+
+int main()
+{
+    Base *d = new Derived;
+    Base *vd = new VirtualDerived;
+
+    d->f(); // Base::f() Bad behavior
+    vd->f(); // Base::f() Bad behavior
+    
+    d->g(); // Derived::g()
+    vd->g(); // VirtualDerived::g()
+
+    delete d;
+    delete vd;
+
+    return 0;
+}
+```
 
 实现多态，有二种方式，覆盖，重载。
 
@@ -12226,10 +12336,8 @@ https://www.cnblogs.com/kuliuheng/p/4107012.html
 例子：
 
 ```c++
-
+略
 ```
-
-
 
 ### 2.override
 
@@ -12237,16 +12345,16 @@ https://www.cnblogs.com/kuliuheng/p/4107012.html
 
 **（1）**不同的范围（分别位于派生类与基类）；
 **（2）**函数名字相同；
-**（3）**参数列表完全相同；
+**（3）**参数列表完全相同；就是说函数忽略是否加virtual要一模一样。
 **（4）**基类函数必须有virtual 关键字，派生类的virtual可有可无。
 
 例子：
 
 ```c++
-
+//参见overwrite中正常多态情形的例子
 ```
 
-
+**同名的普通函数与const函数本质上是两个不同的函数，应该等价理解为这两个同名函数的参数是不同的**
 
 ### 3.overwrite
 
@@ -12298,4 +12406,416 @@ int main()
     return 0;
 }
 ```
+
+看两种申请指针方式的对比：
+
+```c++
+
+#include <vector>
+#include<time.h>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+#include <iostream>
+using namespace std;
+
+class Base
+{
+public:
+	virtual void f(float x) { cout << "Base::f(float) " << x << endl; }
+	virtual void g(float x) { cout << "Base::g(float) " << x << endl; }
+	void h(float x) { cout << "Base::h(float) " << x << endl; }
+};
+
+class Derived : public Base
+{
+public:
+	virtual void f(float x) { cout << "Derived::f(float) " << x << endl; }
+	virtual void g(int x) { cout << "Derived::g(int) " << x << endl; }
+	void h(float x) { cout << "Derived::h(float) " << x << endl; }
+};
+
+int main()
+{
+	Derived  d;//子类对象
+	Base *pb = &d;//父类指针指向子类对象-->有可能产生多态
+	Derived *pd = &d;
+
+	Base *tb = new Base;
+	Base *td = new Derived; //父类指针指向子类对象-->有可能产生多态
+    	
+    //Derived *xb = new Base;//会报错，注意基类的值不能用于初始化派生类的实体。
+	Derived *xd = new Derived;
+    
+/*1正常产生多态的情形：父类加了virtual 父类和子类函数名字、参数类型和数目都相同构成多态*/
+	// Good : behavior depends solely on type of the object
+	pb->f(3.14f); // Derived::f(float) 3.14 --->产生多态
+	pd->f(3.14f); // Derived::f(float) 3.14
+
+	tb->f(3.14f); //Base::f(float) 3.14
+	td->f(3.14f); //Derived::f(float) 3.14--->产生了多态
+
+/*2父类加了virtual 但只要父类和子类函数参数类型或个数有差异都不能构成多态*/
+				  // Bad : behavior depends on type of the pointer
+	pb->g(3.14f); // Base::g(float) 3.14 (surprise!)--->未产生多态
+	pd->g(3.14f); // Derived::g(int) 3
+
+	tb->g(3.14f);//Base::g(float) 3.14
+	td->g(3.14f); //Base::g(float) 3.14 --->未产生多态
+
+/*3因为父类h函数未加virtual 无论子类同名(且类型相同的函数)加不加都不能构成多态*/
+				  // Bad : behavior depends on type of the pointer
+	pb->h(3.14f); // Base::h(float) 3.14  (surprise!) --->未产生多态
+	pd->h(3.14f); // Derived::h(float) 3.14
+
+	tb->h(3.14f); //Base::h(float) 3.14
+	td->h(3.14f); //Base::h(float) 3.14   --->未产生多态
+
+	return 0;
+}
+```
+
+## 13 左值引用和右值引用
+
+**先看一下传统的左值引用**
+
+```c++
+int a = 10;
+int &b = a;//定义一个左值引用变量b = 20;
+b = 20; //通过左值引用修改引用内存的值
+```
+
+左值引用在汇编层面其实和普通的指针是一样的；定义引用变量必须初始化，因为引用其实就是一个别名，需要告诉编译器定义的是谁的引用。
+
+```c++
+int &var = 10;
+```
+
+上述代码是无法编译通过的，因为10无法进行取地址操作，无法对一个立即数取地址，因为立即数并没有在内存中存储，而是存储在寄存器中，可以通过下述方法解决:
+
+```c++
+const int &var = 10;
+```
+
+使用常引用来引用常量数字10，因为此刻内存上产生了临时变量保存了10，这个临时变量是可以进行取地址操作的，因此var引用的其实是这个临时变量，相当于下面的操作:
+
+```c++
+const int temp = 10;
+const int &var = temp;
+```
+
+
+根据上述分析，得出如下结论:
+
+
+左值引用要求右边的值必须能够取地址，如果无法取地址，可以用常引用；但使用常引用后，我们只能通过引用来读取数据，无法去修改数据，因为其被const修饰成常量引用了。
+
+
+那么C++11引入了右值引用的概念，使用右值引用能够很好的解决这个问题.
+
+**右值引用**
+
+参考：https://www.jianshu.com/p/d19fc8447eaa/
+
+
+C++对于左值和右值没有标准定义，但是有一个被广泛认同的说法：
+
+可以取地址的，有名字的，非临时的就是左值；不能取地址的，没有名字的，临时的就是右值；可见立即数，函数返回的值等都是右值；而非匿名对象(包括变量)，函数返回的引用，const对象等都是左值。
+
+从本质上理解，创建和销毁由编译器幕后控制，程序员只能确保在本行代码有效的，就是右值(包括立即数)；而用户创建的，通过作用域规则可知其生存期的，就是左值(包括函数返回的局部变量的引用以及const对象)。
+
+
+定义右值引用的格式如下：
+
+类型& &引用名=右值表达式;
+
+
+右值引用是C++11新增的特性，所以C++98的引用为左值引用。右值引用用来绑定到右值，绑定到右值以后本来会被销毁的右值的生存期会延长至
+
+与绑定到它的右值引用的生存期。
+int & &var = 10;
+在汇编层面右值引用做的事情和常引用是相同的，即产生临时量来存储常量。但是，唯一一点的区别是，右值引用可以进行读写操作，而常引用只能进行读操作。
+
+move可以将左值转换成右值
+
+```c++
+	int &&a = 10;
+	int	b = a;
+	//int &&c = b;//报错无法将右值引用绑定到左值
+	int &&c = std::move(b);
+```
+
+
+
+## 14 四种强制类型转换
+
+##  1）static_cast
+
+C语言所采用的类型转换方式：
+
+```c
+int a = 10;
+int b = 3;
+double result = (double)a / (double)b;
+```
+
+C++中采用static_cast：
+
+```c++
+int a = 10;
+int b = 3;
+double result = static_cast<double>(a) / static_cast<double>(b);
+```
+
+**用法：static_cast <类型说明符> （变量或表达式）**
+
+**它主要有如下几种用法：**
+  （1）用于类层次结构中基类和派生类之间指针或引用的转换
+   进行上行转换（把派生类的指针或引用转换成基类表示）是安全的
+   进行下行转换（把基类的指针或引用转换为派生类表示），由于没有动态类型检查，所以是不安全的
+  （2）用于基本数据类型之间的转换，如把int转换成char。这种转换的安全也要开发人员来保证
+  （3）把空指针转换成目标类型的空指针
+  （4）把任何类型的表达式转换为void类型
+  注意：static_cast不能转换掉expression的const、volitale或者__unaligned属性。
+
+**static_cast:可以实现C++中内置基本数据类型之间的相互转换。**
+
+如果涉及到类的话，static_cast只能在**有相互联系的类型中进行相互转换,**不一定包含虚函数。
+
+更多例子：
+
+```c++
+char a = 'a';
+int b = static_cast<char>(a);//正确，将char型数据转换成int型数据
+
+double *c = new double;
+void *d = static_cast<void*>(c);//正确，将double指针转换成void指针
+
+int e = 10;
+const int f = static_cast<const int>(e);//正确，将int型数据转换成const int型数据
+
+const int g = 20;
+int *h = static_cast<int*>(&g);//编译错误，static_cast不能转换掉g的const属性
+
+//类上行和下行的转换
+class Base
+{};
+
+class Derived : public Base
+{}
+
+Base* pB = new Base();
+if(Derived* pD = static_cast<Derived*>(pB))
+{}//下行转换是不安全的(坚决抵制这种方法)
+
+Derived* pD = new Derived();
+if(Base* pB = static_cast<Base*>(pD))
+{}//上行转换是安全的
+
+```
+
+
+
+## 2) const_cast
+
+在C语言中，const限定符通常被用来限定变量，用于表示该变量的值不能被修改。
+
+**而const_cast则正是用于强制去掉这种不能被修改的常数特性，但需要特别注意的是const_cast不是用于去除变量的常量性，而是去除指向常数对象的指针或引用的常量性，其去除常量性的对象必须为指针或引用。**
+
+一个错误的例子：
+
+```c++
+const int a = 10;
+const int * p = &a;
+*p = 20;                  //compile error
+int b = const_cast<int>(a);  //compile error
+```
+
+**在本例中出现了两个编译错误，第一个编译错误是\*p因为具有常量性，其值是不能被修改的；另一处错误是const_cast强制转换对象必须为指针或引用，而例3中为一个变量，这是不允许的！**
+
+正确的例子：
+
+```c++
+
+#include <iostream>
+using namespace std;
+
+int main(int argc, char **argv)
+{
+	const int a = 10;
+
+	const int * p = &a;//常量必须用指向常量的指针，否则编译报错
+
+	int *q;
+	q = const_cast<int *>(p);
+	//*p = 22;//报错，指向常量的指针不可指向所指变量的值
+	*q = 20;    //fine
+	cout << a << " " << *p << " " << *q << endl;
+	cout << &a << " " << p << " " << q << endl;
+	return 0;
+
+}
+打印结果：
+10 20 20
+00B9FC5C 00B9FC5C 00B9FC5C
+```
+
+可以看出a的值不会被改变，这是一件好事！但p、q也确实是指向了a。这里我们称“*q=20”语句为未定义行为语句，所谓的未定义行为是指在标准的C++规范中并没有明确规定这种语句的具体行为，该语句的具体行为由编译器来自行决定如何处理。对于这种未定义行为的语句我们应该尽量予以避免！
+
+再看个正经点的例子：
+
+```c++
+#include<iostream>
+using namespace std;
+ 
+const int * Search(const int * a, int n, int val);
+ 
+int main()
+{
+    int a[10] = {0,1,2,3,4,5,6,7,8,9};
+    int val = 5;
+    int *p;
+    p = const_cast<int *>(Search(a, 10, val));
+    if(p == NULL)
+        cout<<"Not found the val in array a"<<endl;
+    else
+        cout<<"hvae found the val in array a and the val = "<<*p<<endl;
+    return 0;
+}
+ 
+const int * Search(const int * a, int n, int val)
+{
+    int i;
+    for(i=0; i<n; i++)
+    {
+        if(a[i] == val)
+            return &a[i];
+    }
+    return  NULL;
+}
+```
+
+我们定义了一个函数，用于在a数组中寻找val值，如果找到了就返回该值的地址，如果没有找到则返回NULL。函数Search返回值是const指针，当我们在a数组中找到了val值的时候，我们会返回val的地址，最关键的是a数组在main函数中并不是const，因此即使我们去掉返回值的常量性有可能会造成a数组被修改，但是这也依然是安全的。
+
+类似的指针可以改为引用：
+
+```c++
+#include<iostream>
+using namespace std;
+ 
+const int & Search(const int * a, int n, int val);
+ 
+int main()
+{
+int a[10] = {0,1,2,3,4,5,6,7,8,9};
+int val = 5;
+int &p = const_cast<int &>(Search(a, 10, val));
+if(p == NULL)
+cout<<"Not found the val in array a"<<endl;
+else
+cout<<"hvae found the val in array a and the val = "<<p<<endl;
+return 0;
+}
+ 
+const int & Search(const int * a, int n, int val)
+{
+int i;
+for(i=0; i<n; i++)
+{
+if(a[i] == val)
+return a[i];
+}
+return NULL;
+}
+```
+
+
+
+**了解了const_cast的使用场景后，可以知道使用const_cast通常是一种无奈之举，同时也建议大家在今后的C++程序设计过程中一定不要利用const_cast去掉指针或引用的常量性并且去修改原始变量的数值，这是一种非常不好的行为。**
+
+
+
+## 3) reinterpret_cast
+
+在C++语言中，reinterpret_cast主要有三种强制转换用途：***改变指针或引用的类型、将指针或引用转换为一个足够长度的整形、将整型转换为指针或引用类型***。
+
+**用法：reinterpret_cast<type_id> (expression)**
+  type-id必须是一个指针、引用、算术类型、函数指针或者成员指针。
+  它可以把一个指针转换成一个整数，也可以把一个整数转换成一个指针（先把一个指针转换成一个整数，在把该整数转换成原类型的指针，还可以得到原先的指针值）。
+  **在使用reinterpret_cast强制转换过程仅仅只是比特位的拷贝，因此在使用过程中需要特别谨慎！**
+
+例7：
+
+```c++
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+
+int main(int argc, char **argv)
+{
+	double d = 12.1;
+	char* p = reinterpret_cast<char*>(&d); // 将d以二进制（位模式）方式解释为char，并赋给*p 
+	void *ptr = reinterpret_cast<void*>(p);
+	double* q = reinterpret_cast<double*>(ptr);
+	std::cout << *q; // 12.1 ，值不会变
+	return 0;
+}
+
+```
+
+c语言我们直接强制转：
+
+```c
+#include <iostream>
+using namespace std;
+
+int main(int argc, char **argv)
+{
+	double d = 12.1;
+	char* p = (char *)(&d); // 将d以二进制（位模式）方式解释为char，并赋给*p 
+	void *ptr = (void *)(p);
+	double* q = (double *)(ptr);
+	std::cout << *q; // 12.1
+	return 0;
+}
+```
+
+## 4) dynamic_cast
+
+**用法：dynamic_cast<type_id> (expression)**
+
+**（1）其他三种都是编译时完成的，dynamic_cast是运行时处理的，运行时要进行类型检查。**
+
+**（2）不能用于内置的基本数据类型的强制转换。**
+
+**（3）dynamic_cast转换如果成功的话返回的是指向类的指针或引用，转换失败的话则会返回NULL。**
+
+**（4）使用dynamic_cast进行转换的，基类中一定要有虚函数，否则编译不通过。**
+
+​     **类中需要检测有虚函数的原因：类中存在虚函数，就说明它有想要让基类指针或引用指向派生类对象的情况，此时转换才有意义。**
+
+​    **这是由于运行时类型检查需要运行时类型信息，而这个信息存储在类的虚函数表（关于[虚函数表](http://baike.baidu.com/view/3750123.htm)的概念，详细可见<Inside c++ object model>）中，**
+
+​     **只有定义了虚函数的类才有虚函数表。**
+
+ **（5）在类的转换时，在类层次间进行上行转换时，dynamic_cast和[static_cast](http://baike.baidu.com/view/1745207.htm)的效果是一样的。在进行下行转换时，dynamic_cast具有类型检查的功能，比static_cast更安全。**
+
+​    **向上转换，即为子类指针指向父类指针（一般不会出问题）；向下转换，即将父类指针转化子类指针，子类除了继承父类的属性和方法还会有可能定义自己的属性和方法，因此向下转化时子类自己的方法和属性丢失。**
+
+例子：
+
+```c++
+if(Derived *dp = dynamic_cast<Derived *>(bp)){
+  //使用dp指向的Derived对象  
+}
+else{
+  //使用bp指向的Base对象  
+}
+```
+
+！！！**尽量少使用转型操作，尤其是dynamic_cast，耗时较高，会导致性能的下降，尽量使用其他方法替代。**
+
+## 15 智能指针
 
