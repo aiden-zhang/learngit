@@ -12,3 +12,5 @@ git pull
 git add [更新或增加的文件]
 git commit -m "评论"
 git push
+
+#误删了本地文件，先git reset head 再git checkout + 勿删的文件
