@@ -1640,10 +1640,10 @@ int main() {
     cout<<"第一个元素为："<<arr[0]<<endl;
 
     int * p=arr;//arr就是数组的首地址
-    cout<<"利用指针访问第一个元素："<<*p<<endl;
+    cout<<"利用指针访问第一个元素："<<*p<<endl; //1
 
-    p++;//让指针向后偏移8个字节
-    cout<<"利用指针访问第二个元素："<<*p<<endl;
+    p++;//让指针向后偏移4个字节
+    cout<<"利用指针访问第二个元素："<<*p<<endl;//2
 
     cout<<"利用指针遍历数组"<<endl;
     int * p2=arr;
@@ -1671,8 +1671,8 @@ void swap1(int a,int b)
     int temp=a;
     a=b;
     b=temp;
-    cout<<"swap1 a="<<a<<endl;
-    cout<<"swap2 b="<<b<<endl;
+    cout<<"in swap1 a="<<a<<endl;
+    cout<<"in swap1 b="<<b<<endl;
 }
 //地址传递
 void swap2(int * p1,int * p2)
@@ -1687,6 +1687,8 @@ int main() {
     //值传递
     //如果是值传递是不可以改变实参的
     swap1(a,b);
+    cout<<"a="<<a<<endl;
+    cout<<"b="<<b<<endl;
     //地址传递
     //如果是地址传递可以改变实参
     swap2(&a,&b);
@@ -2295,10 +2297,10 @@ int main(){
     int b=20;
     int &c;//这是错误的，引用必须初始化
     int &c=a;//一旦初始化后，就不可以更改
-    c=b;//这是赋值操作，不是更改引用
-    cout<<"a="<<a<<endl;
-    cout<<"b="<<b<<endl;
-    cout<<"c="<<c<<endl;
+    c=b;//这是赋值操作，不是更改引用，是把b的值赋给了a
+    cout<<"a="<<a<<endl; //20
+    cout<<"b="<<b<<endl; //20
+    cout<<"c="<<c<<endl; //20
     
     system("pause");
     return 0;
@@ -2361,31 +2363,46 @@ int main() {
 
 作用：引用是可以作为函数的返回值存在的
 
-注意：不要返回局部变量引用
+注意：不要返回局部变量引用，或者局部变量指针，但可以返回局部变量的值
 
 用法：函数调用作为左值
 
 示例：
 
 ```c++
-int& test01(){
-	int a=10;//局部变量
-    return a;
+#include <iostream>
+using namespace std;
+
+int test0() {
+	int a = 10;//局部变量
+	return a;
 }
-int& test02(){
-    static int a=20;//静态变量
-    return a;
+int& test01() {
+	int a = 10;//局部变量
+	return a;
+}
+int& test02() {
+	static int a = 20;//静态变量，其生命周期为整个程序周期，但作用域只在该函数中
+	cout << "&a:" << &a << endl;
+	return a;
 }
 int main() {
-	//不能返回局部变量引用
+	//可以返回局部变量的值
+	int ref0 = test0();
+	cout << "ref0=" << ref0 << endl;//第一次可以返回，编译器做了保留
+	cout << "ref0=" << ref0 << endl << endl;//第二次结果错误，因为a的内存已经释放了
+
+	//不能返回局部变量引用，或指针
+    //区别于int ref = test01();若这样则和上一个例子等效，两次打印ref相等，无报错
 	int& ref = test01();
 	cout << "ref=" << ref << endl;//第一次可以返回，编译器做了保留
-	cout << "ref=" << ref << endl<<endl;//第二次结果错误，因为a的内存已经释放了
-
+	cout << "ref=" << ref << endl << endl;//第二次结果错误，因为a的内存已经释放了
+    
+    //可以返回局部静态变量的引用或指针，因为其并不在栈上
 	int& ref2 = test02();
 	cout << "&ref2:" << &ref2 << endl;
 	cout << "ref2=" << ref2 << endl;
-	cout << "ref2=" << ref2 << endl<<endl;
+	cout << "ref2=" << ref2 << endl << endl;
 
 	test02() = 1000;//如果函数的返回值是引用，这个函数调用可以作为左值
 	cout << "ref2=" << ref2 << endl;
@@ -2394,18 +2411,6 @@ int main() {
 	system("pause");
 }
 
-执行结果：
-ref=10
-ref=13504637
-
-&a:00CEB008
-&ref2:00CEB008
-ref2=20
-ref2=20
-
-&a:00CEB008
-ref2=1000
-ref2=1000
 ```
 
 ### 2.5 引用的本质
@@ -2548,21 +2553,46 @@ using namespace std;
 //引用作为重载条件
 void func(int &a)
 {
-    cout<<"func (int &a)被调用"<<endl;
+	cout << "func (int &a)被调用" << endl;
 }
 void func(const int &a)
 {
-    cout<<"func(const int &a)调用"<<endl;
+	cout << "func(const int &a)调用" << endl;
 }
-//函数重载碰到默认参数会产生参数歧义，需要避免
+
 int main() {
-//    int a=10;
-//    func(a);
-    func(10);
-    system("pause");
+	int a=10;
+	func(a);
+    
+	func(10);
+	system("pause");
+	return 0;
+}
+```
+
+函数重载碰到函数默认参数编译报错！
+
+```c++
+#include <stdio.h>
+
+int func(int a)
+{
+	 return (a);}
+
+int func(int a, int b = 0)
+{
+	 return (a + b);
+}
+int main(int argc, char* argv[])
+{
+    printf("func(3)  = %d\n", func(3));
+    printf("func(3,2)= %d\n", func(3, 2));
+    printf("test for temp.cpp\n");
     return 0;
 }
 ```
+
+
 
 ## 4 类和对象
 
@@ -2697,8 +2727,8 @@ int main() {
 
 区别：
 
-- struct 默认权限为public
-- class 默认权限为private
+- struct 默认权限为 **public**
+- class 默认权限为 **private**
 
 #### 4.1.3 成员属性设置为私有
 
@@ -2717,19 +2747,25 @@ using namespace std;
 class Person
 {
 public:
-    //设置姓名
+    //设置情人->写
+    void setLover(string lovers)
+    {
+        m_Lover=lovers;
+    }
+     //设置姓名->写
     void setName(string name)
     {
         m_Name=name;
     }
-    //获取名字
+    //获取名字->读
     string getName()
     {
         return m_Name;
     }
-    //获取年龄
+    //获取年龄->读
     int getAge(){
         m_Age=0;  //初始化为0
+        m_Age++;
         return m_Age;
     }
 private:
@@ -2738,11 +2774,12 @@ private:
     //年龄  只读
    int m_Age;
    //情人  只写
-   int m_Lover;
+   string m_Lover;
 };
 int main() {
     Person p;
     p.setName("张三");
+    p.setLover("李四");
     cout<<"姓名为： "<< p.getName()<<endl;
     cout<<"年龄为："<<p.getAge()<<endl;
     system("pause");
@@ -3022,11 +3059,11 @@ private:
 
 ​		同样的使用完一个对象或变量，没有及时清理，也会造成一定的安全问题
 
-c++利用管理构造函数和析构函数解决上述问题，这两个函数将会被编译器自动调用，完成对象初始化和清理工作，
+c++利用管理**构造函数**和**析构函数**解决上述问题，这两个函数将会被编译器自动调用，完成对象初始化和清理工作，
 
 对象的初始化和清理工作是编译器强制要我们做的事情，因此如果我们不提供构造和析构，编译器会提供。编译器提供的构造函数和析构函数是空实现的。
 
-- 构造函数：主要作用在与创建对象是为对象的成员属性赋值，构造函数有编译器自动调用，无须手动调用
+- 构造函数：主要作用在与创建对象时为对象的成员属性赋值，构造函数有编译器自动调用，无须手动调用
 - 析构函数：主要作用在于对象销毁前系统自动调用，执行一些清理工作
 
 **构造函数语法：**类名(){}
@@ -3159,6 +3196,13 @@ c++中拷贝构造调用时机通常有三种情况
 - 以值方式返回局部对象
 
 ```c++
+#include <iostream>
+using namespace std;
+
+#include <iostream>
+using namespace std;
+
+#include "string"
 class Person {
 public:
 	Person() {
@@ -3183,9 +3227,10 @@ public:
 //使用一个已经创建完毕的对象来初始化一个新对象
 void test01()
 {
-	Person p1(20);
-	Person p2(p1);
-}
+	Person p1(20);//无参
+	Person p2(p1);//有参
+}//析构->析构
+
 //值传递的方式给函数参数传值
 void doWork(Person p) //若改为传引用，则内外打印&p一致
 {
@@ -3194,7 +3239,7 @@ void doWork(Person p) //若改为传引用，则内外打印&p一致
 void test02()
 {
 	Person p;
-	cout << "before doWork():"<<(int*)&p << endl;
+	cout << "before doWork():" << (int*)&p << endl;
 	doWork(p);
 }
 //值方式返回局部对象
@@ -3202,16 +3247,16 @@ Person doWork2()
 {
 	const Person p1;
 	cout << (int*)&p1 << endl;
-	return p1; //若返回引用，外侧用引用接收，则内外&p一致，具体可参考2.4引用做函数...
+	return p1; //若返回引用，外侧用引用接收(准确来说只能返回局部静态变量)，则内外&p一致，具体可参考2.4引用做函数...
 }
 void test03() {
-	Person p = doWork2();//先局部变量拷贝到外层，再析构，因为返回局部变量所以内外打印&p不一样，不要返回局部变量，更不要返回其指针
+	Person p = doWork2();//先局部变量拷贝到外层，再析构，因为返回局部变量所以内外打印&p不一样，不要返回局部变量的引用，更不要返回其指针
 	cout << (int*)&p << endl;
 }
 int main() {
 	test01();
 	test02();
-	cout << "before call test03():"<< endl;
+	cout << "before call test03():" << endl;
 	test03();
 	system("pause");
 	return 0;
@@ -3267,7 +3312,7 @@ public:
 // 2.如果用户定义拷贝构造函数，C++不会再提供其他构造函数
 int main()
 {
-	Person p;		// 因为编译器不再提供默认构造函数，所以这句和下句编译器会报错
+	Person p; // 因为编译器不再提供默认构造函数，所以这句和下句编译器会报错
 	Person p1(20);	// 这句编译器会报错
 	Person p2(p1);
 	cout << "p2的年龄：" << p2.age << endl;
@@ -3315,6 +3360,8 @@ int main()
 
 ```
 
+**总结：**若用户定义了拷贝构造函数，则系统不再提供无参、有参构造；若用户定义了有参构造，则系统不再提供默认的无参构造，但会提供默认拷贝构造函数。
+
 #### 4.2.5 深拷贝与浅拷贝
 
 深拷贝是**面试经典问题**，也是常见的一个坑
@@ -3342,14 +3389,14 @@ public:
 	{
 		cout << "Person的拷贝构造函数调用" << endl;
 		m_Age = p.m_Age;
-		//m_Height=p.m_Height;//编译器默认执行的拷贝构造函数里是执行这行代码，这样程序会对同一个地址析构两次从而崩溃
+		//m_Height=p.m_Height;//编译器默认执行的拷贝构造函数里是执行这行代码，这样析构时程序会对同一块内存释放两次从而崩溃
 
-		//深拷贝操作：先申请内存在拷贝值
+		//深拷贝操作：先申请内存再拷贝值
 		m_Height = new int(*p.m_Height);
 	}
 	~Person(){
 		//析构函数将堆区开辟的数据做释放操作
-		//浅拷贝带来的问题就是堆区的内存重复释放
+		//浅拷贝带来的问题就是堆区的内存重复释放导致程序崩溃
 		if (m_Height != NULL)
 		{
 			delete m_Height;
@@ -3365,7 +3412,7 @@ void test01(){
 	cout << "p1的年龄为：" << p1.m_Age << "p1的身高为：" << *p1.m_Height << endl;
 
 	Person p2(p1);
-	//如果利用编译器提供的拷贝构造函数，会做浅拷贝操作
+	//如果利用编译器提供的拷贝构造函数，会做浅拷贝操作(两个指针指向同一块内存)
 	cout << "p2的年龄为：" << p2.m_Age << "p2的身高为：" << *p2.m_Height << endl;
 }
 int main() {
@@ -3376,7 +3423,7 @@ int main() {
 }
 ```
 
-> 总结：如果属性有在**堆区**开辟的，一定要提供拷贝构造函数，防止浅拷贝带来的问题
+**总结：**如果属性有在**堆区**开辟的，一定要提供拷贝构造函数，防止浅拷贝带来的重复析构同一块内存导致程序崩溃。
 
 #### 4.2.6 初始化列表
 
@@ -3402,6 +3449,7 @@ public:
 //    }
     //初始化列表初始化属性
     Person():m_A(10),m_B(20),m_C(30){};
+    
     int m_A;
     int m_B;
     int m_C;
@@ -3440,9 +3488,6 @@ B类中有A作为成员，A为对象成员
 #include "string"
 using namespace std;
 
-
-
-
 class Phone
 {
 public:
@@ -3460,7 +3505,8 @@ public:
 class Person
 {
 public:
-	//Phone m_Phone=p.Name  隐式转换法
+ //Phone m_Phone=p.Name  隐式转换法
+  //当其他类对象作为本类成员，构造是先构造类对象，再构造自身，析构的顺序与构造相反
 	Person(string name, string phoneName) :p_Name(name), p_Phone(phoneName)
 	{
 		cout << "Person的构造函数调用" << endl;
@@ -3470,9 +3516,8 @@ public:
 	}
 	string p_Name;
 	Phone p_Phone;
-
 };
-//当其他类对象作为本类成员，构造是先构造类对象，再构造自身，析构的顺序与构造想反
+
 void test01(){
 	Person p("张三", "vivo xs");
 	cout << p.p_Name << "拿着" << p.p_Phone.m_PhoneName << endl;
@@ -3493,7 +3538,7 @@ int main()
 
 - 静态成员变量
 
-  所有对象共享同一份数据
+  **所有对象共享同一份数据**
 
   在编译阶段分配内存
 
@@ -3501,9 +3546,13 @@ int main()
 
 - 静态成员函数
 
-  所有对象共享同一个函数
+  **所有对象共享同一个函数**
 
   静态成员函数只能访问静态成员变量
+  
+  **只有**静态函数可以通过类名访问
+  
+  
 
 ```c++
 #include <iostream>
@@ -3516,20 +3565,24 @@ using namespace std;
 class Person
 {
 public:
-    //静态成员函数
+    //静态成员函数，只能访问静态成员变量
     static void func(){
         m_A=100;//静态成员函数可以访问，静态成员变量
         //m_B=200;//静态成员函数 不可以访问非静态成员变量
         cout<<"static void func被调用"<<endl;
     }
-    static int m_A;//静态成员变量
-    int m_B;//非静态成员变量
+    //static int m_A=0;//报错，静态变量类内声明，类外初始化
+    static int m_A;//静态成员变量，既可以被静态成员函数访问也可以被非静态
+    int m_B;//非静态成员变量，只能被非静态成员函数访问
 };
-int Person::m_A=0;
+
+//只有静态属性可以通过类名访问
+int Person::m_A=0;//必须在类外，且必须初始化。
 
 void test01(){
     //通过对象访问
-    Person p;
+    Person p;//static Person p也可以
+    //普通对象访问静态成员函数
     p.func();
 
     //只有静态函数可以通过类名访问
@@ -3702,7 +3755,7 @@ int main() {
 常对象：
 
 - 声明对象前加const称该对象为常对象
-- 常对象只能调用常函数
+- **常对象只能调用常函数**
 
 ```c++
 #include "string"
@@ -3747,7 +3800,7 @@ int main() {
 }
 ```
 
-> 注意：在test02函数中存在修饰const Person p1报错（为知道原因）
+> 注意：在test02函数中存在修饰const Person p1报错（为知道原因）??
 
 ### 4.4 友元
 
@@ -4373,7 +4426,7 @@ B类称为父类或基类
 - 保护继承
 - 私有继承
 
-| 继承方式/基类成员 | public成员 | protected成员 | private成员 |
+| 继承方式\基类成员 | public成员 | protected成员 | private成员 |
 | ----------------- | ---------- | ------------- | ----------- |
 | public继承        | public     | protected     | 不可见      |
 | protected继承     | protected  | protected     | 不可见      |
@@ -4696,7 +4749,7 @@ int main() {
 总结：
 
 - 菱形继承带来的主要问题是子类继承两份相同的数据，导致资源浪费毫无意义
-- 利用虚继承可以解决菱形继承的问题
+- **利用虚继承可以解决菱形继承的问题**
 
 ### 4.7 多态
 
@@ -4754,17 +4807,18 @@ class Dog :public Animal
 //2.子类重写父类的虚函数
 
 //动态多态使用
-//3.父类的指针或者引用 指向子类对象
+//3.父类的指针或者引用 指向子类对象，通过父类对象调用到子类方法
 void doSpeak(Animal &animal) //Animal &animal=cat;
 {
+    //通过animal可调用Cat Dog的方法，具体看该父类引用指向哪个子类 Cat or Dog
 	animal.speak();
 }
 void test01() {
 	Cat cat;
-	doSpeak(cat);
+	doSpeak(cat);//小猫在说话
 
 	Dog dog;
-	doSpeak(dog);
+	doSpeak(dog);//小狗在说话
 }
 int main() {
 	test01();
@@ -4783,7 +4837,7 @@ int main() {
 
 - 父类指针或引用指向子类对象
 
-重写：函数返回值类型  函数名 参数列表  完全一致称为重写
+重写：函数返回值类型  函数名 参数列表  完全一致 除了virtual 其他一模一样才称为重写
 
 #### 4.7.2 多态案例一，计算器类
 
@@ -4917,7 +4971,7 @@ int main() {
 
 在多态中，通常**父类中虚函数的实现是毫无意义**的(父类虚析构函数除外)，主要都是调用子类重写的内容
 
-因此可以将虚函数改为**纯虚函数**
+因此可以将虚函数改为**纯虚函数**，含有纯虚函数的类称为**抽象类**！
 
 纯虚函数语法：virtual  返回值类型  函数名  (参数列表)=0；
 
@@ -4925,9 +4979,9 @@ int main() {
 
 - **无法实例化对象**
 
-- 子类必须重写抽象类中的纯虚函数，否则也属于抽象类
+- 子类必须重写抽象类中的纯虚函数，否则由于继承了纯虚函数，也属于抽象类
 
-- 类中只要有一个纯虚函数都算抽象类
+- 类中只要有一个纯虚函数就算抽象类
 
   
 
@@ -4948,7 +5002,7 @@ public:
 class Son :public Base
 {
 public:
-    virtual void func()
+    virtual void func() //子类的virtual可有可无，无差异
     {
         cout<<"func函数调用"<<endl;
     };
@@ -5061,7 +5115,7 @@ int main() {
 
 #### 4.7.5 虚析构和纯虚析构
 
-多态使用是，如果子类中有属性开辟到堆区，name父类指针在释放是无法调用到子类的析构代码
+多态使用是，如果子类中有属性开辟到堆区，name父类指针在释放时无法调用到子类的析构代码
 
 解决方式：将父类中的析构函数改为虚析构或者纯虚析构
 
@@ -5100,18 +5154,28 @@ public:
 
     }
     //利用虚析构可以解决 父类指针释放子类对象是不干净的问题
+    //不加virtul delete animal只会析构父类，不会析构子类
+    //加了virtual无论是虚还是纯虚，释放父类对象的操作都会自动先释放子类
+    
+// 1.虚析构  
 //    virtual ~Animal(){
 //        cout<<"animal析构函数调用"<<endl;
 //    }
+    
+//2.纯虚析构 
     //纯虚析构-->基类纯虚函数必须要提供一个定义(实现)，否则编译器会报错
     //有了纯虚析构之后，这个类也属于抽象类，无法实例化对象
     virtual ~Animal() =0;//这里写成虚函数也可以实现统一效果
+    
     //纯虚函数
     virtual void speak()=0;
 };
+
+//纯虚析构必须有其函数实现
 Animal::~Animal() {
     cout<<"animal纯虚析构函数调用"<<endl;
 }
+
 class Cat :public Animal
 {
 public:
@@ -5134,10 +5198,14 @@ public:
 };
 
 void test01(){
-    Animal * animal=new Cat("Tom");
-    animal->speak();
-    //父类指针在析构时候不会调用子类中析构函数，导致子类如果有堆区属性，出现内存泄漏
-    delete animal;
+    //先构造Animal再构造Cat，先父后子；构造Cat时申请了堆资源，必须释放。
+    Cat *cat = new Cat("Tom"); //Animal * animal = new Cat("Tom")同理;
+	Animal * animal = cat;
+    animal->speak();//Tom小猫在说话
+    
+  //父类无虚析构时，父类指针在析构时候不会调用子类中析构函数，导致子类如果有堆区属性，出现内存泄漏
+    delete animal;//有父类虚析构存在时，先析构Cat 再析构Animal，否则只析构父类
+    //注意若是delete cat，则无论负父类是否虚析构，都会先析构子类再析构父类
 }
 int main() {
     test01();
@@ -5146,7 +5214,7 @@ int main() {
 }
 ```
 
-例子2：
+例子2：较难理解！
 
 ```c++
 
@@ -5198,17 +5266,17 @@ Base virtual Destruction
 
 **总结：**
 
-为什么父类析构函数需要为虚函数？
+**为什么父类析构函数需要为虚函数？**
 
-> 1、如果父类的析构函数不是虚函数，则不会触发动态绑定（多态），结果就是只会调用父类的析构函数，而不会调用子类的析构函数，从而可能导致子类的内存泄漏（如果子类析构函数中存在free delete 等释放内存操作时）；
->
-> 2、如果父类的析构函数是虚函数，则子类的析构函数一定是虚函数（即使是子类的析构函数不加virtual,这是C++的语法规则），则会在父类指针或引用指向一个子类时，触发动态绑定（多态），析构实例化对象时，若是子类则会执行子类的析构函数，同时，编译器会在子类的析构函数中插入父类的析构函数，最终实现了先调用子类析构函数再调用父类析构函数；
->
-> 3.如果子类中没有堆区数据，父类可以不写为虚析构或纯虚析构；
->
-> 4.拥有纯虚析构函数的类也属于抽象类；
->
-> 4.父类的纯虚函数必须进行定义，只写成 virtual ~Base() = 0; 编译器会报错。
+1、如果父类的析构函数不是虚函数，则不会触发动态绑定（多态），结果就是只会调用父类的析构函数，而不会调用子类的析构函数，从而可能导致子类的内存泄漏（如果子类析构函数中存在free delete 等释放内存操作时）；
+
+2、如果父类的析构函数是虚函数，则子类的析构函数一定是虚函数（即使是子类的析构函数不加virtual,这是C++的语法规则），则会在父类指针或引用指向一个子类时，触发动态绑定（多态），析构实例化对象时，若是子类则会执行子类的析构函数，同时，编译器会在子类的析构函数中插入父类的析构函数，最终实现了先调用子类析构函数再调用父类析构函数；
+
+3.如果子类中没有堆区数据，父类可以不写为虚析构或纯虚析构；
+
+4.拥有纯虚析构函数的类也属于抽象类；
+
+4.父类的纯虚函数必须进行定义，只写成 virtual ~Base() = 0; 编译器会报错。
 
 
 
@@ -5364,6 +5432,56 @@ int main() {
     return 0;
 }
 ```
+
+
+
+## 4.8 const类成员函数（对照4.3.4）
+
+要声明一个const类型的类成员函数，只需要在成员函数参数列表后加上关键字const，该成员函数不能修改类的所有成员属性。
+
+```c++
+    class Screen {
+    public:
+       char get() const;
+    };
+```
+
+若将成员成员函数声明为const，则该函数不允许修改类的数据成员。例如
+
+```c++
+class Screen {
+public:
+    int get_ok() const {return _cursor; } //正确
+    int set_error(intival) const { _cursor = ival; }//错误！
+};
+```
+
+const成员函数可以被具有相同参数列表的非const成员函数重载，例如
+
+```c++
+class Screen {
+public:
+    char get(int x,int y) {
+        return 'v';
+    }
+    char get(int x,int y) const {
+        return 'v';
+    }
+};
+```
+
+在这种情况下，类对象的常量性决定调用哪个函数
+
+```c++
+const Screen cs;//常量类对象必须调用const成员函数
+Screen cc2; //一般类对象既可以调用常成员函数也可以调用const成员函数
+char ch = cs.get(0, 0);  // 调用const成员函数
+ch = cs2.get(0, 0);     // 调用非const成员函数和const都可，优先调用非const函数
+```
+
+作为一种良好的编程风格，在声明一个成员函数时，若该成员函数并不对数据成员进行修改操作，应尽可能将该成员函数声明为const 成员函数。
+
+***！！注意对比记忆const成员函数/对象和static静态成员函数/变量***
 
 ## 5 文件操作
 
@@ -12186,8 +12304,11 @@ int main(void) {
 
 	Vehicle* vehicleOne = new Car;
 	Vehicle* vehicleTwo = new Airplane;
-	vehicleOne->func1(5);
-	vehicleTwo->func1(6);
+    
+    //若基类func1无virtual，则下面两句都是调用基类func1
+	vehicleOne->func1(5);//Car func1
+	vehicleTwo->func1(6);//Airplane func1
+    vehicleTwo->Vehicle::func1(4);//Vehicle func1
 	return 0;
 }
 ```
@@ -12229,7 +12350,7 @@ int main(void) {
 
   (a)  需要用基类指针指向派生类成员函数
 
-（b）基类的析构函数需要是虚函数，不然派生类析构不到可能导致申请的内存无法释放从而导致内存泄漏
+（b）基类的析构函数需要是虚函数，不然析构基类时不会自动析构派生类，可能导致申请的内存无法释放从而导致内存泄漏
 
 ## 8 哪些函数不可以被声明为虚函数
 
@@ -12254,8 +12375,6 @@ int main(void) {
 #include <string.h>
 #include <iostream>
 using namespace std;
-
-
 
 class Student
 {
@@ -12288,19 +12407,19 @@ public:
 	int age;
 };
 
-Student test(Student s)
+Student test(Student s)//实参是s1传给形参s时需要拷贝构造，
 {
-	Student a1(18);
-	return a1;//函数返回需要拷贝构造
+	Student a1(18);//有参
+	return a1;//函数返回a1需要拷贝构造
 }
 
 void main01()
 {
-	Student s1;
-	s1= test(s1);//实参传给形成需要拷贝构造，
+	Student s1;//默认构造
+	s1= test(s1);//无论是否用s1接收，函数返回时都要拷贝构造
 	s1.showAge();
 	
-}
+}//该函数结束时才会析构test返回时拷贝构造的对象
 
 int main()
 {
@@ -12533,7 +12652,7 @@ C++对于左值和右值没有标准定义，但是有一个被广泛认同的�
 
 右值引用是C++11新增的特性，所以C++98的引用为左值引用。右值引用用来绑定到右值，绑定到右值以后本来会被销毁的右值的生存期会延长至
 
-与绑定到它的右值引用的生存期。
+与绑定到它的右值引用的生存期相同。
 int & &var = 10;
 在汇编层面右值引用做的事情和常引用是相同的，即产生临时量来存储常量。但是，唯一一点的区别是，右值引用可以进行读写操作，而常引用只能进行读操作。
 
@@ -12819,6 +12938,60 @@ else{
 
 ## 15 智能指针
 
+shared_ptr可以自动管理堆上分别的内存，当某一块内存的引用计数为0后内存就会自动被释放，很智能，但会带来循环引用，多个指针指向同一块内存可能影响程序的阅读；auto_ptr无引用计数。
+
+```c++
+#include <iostream>
+#include <memory>   //使用shared_ptr需要include它
+
+int main() {
+	//通过make_shared创建shared_ptr
+	std::shared_ptr<int> p1 = std::make_shared<int>();
+	*p1 = 78;
+	std::cout << "p1 = " << *p1 << std::endl;
+
+	//查看引用计数
+	std::cout << "p1 Reference count = " << p1.use_count() << std::endl;
+
+	//第二个shared_ptr也将在内部指向相同的指针
+	//这将会使引用计数变为2
+	std::shared_ptr<int> p2(p1);
+
+	//查看引用计数
+	std::cout << "p2 Reference count = " << p2.use_count() << std::endl;
+	std::cout << "p1 Reference count = " << p1.use_count() << std::endl;
+
+	//比较智能指针
+	if (p1 == p2) {
+		std::cout << "p1 and p2 are pointing to same pointer\n";
+	}
+
+	std::cout << "Reset p1" << std::endl;
+
+	//重置shared_ptr，在这种情况下，其内部不会指向内部的任何指针
+	//因此其引用计数将会变为0
+	p1.reset();
+	std::cout << "p1 Reference Count = " << p1.use_count() << std::endl;
+
+	//重置shared_ptr，在这种情况下，其内部将会指向一个新的指针
+	//因此其引用计数将会变为1
+	p1.reset(new int(11));
+	std::cout << "p1 Reference Count = " << p1.use_count() << std::endl;
+
+	//分配nullptr将取消关联指针并使其指向空值
+	p1 = nullptr;
+	std::cout << "p1 Reference Count = " << p1.use_count() << std::endl;
+
+	if (!p1) {
+		std::cout << "p1 is NULL" << std::endl;
+	}
+
+	return 0;
+}
+```
+
+
+
 # 五、嵌入式基础知识总结
 
 ## 1 同步与异步，互斥
@@ -12853,11 +13026,17 @@ else{
 
 ## 3 互斥锁、信号量、条件变量
 
-互斥锁
+互斥锁用来保证某线程访问共享资源时不被其他线程影响。pthread_mutex_lock和pthread_mutex_unlock
+
+条件变量pthread_cond_signal和pthread_cond_wait用来保证线程间正确的衔接关系。通常放在一对互斥锁中，注意pthread_cond_wait将线程放到等待队列后会同时解锁，保证了pthread_cond_signal所在线程可以拿到锁从而调用pthread_cond_signal发信号。
+
+信号量代码中几乎没怎么用，两年没用已经没什么印象了。
 
 ## 4 死锁产生条件与调试方法
 
 gdb a.out->卡主->ctrl +c杀掉进程->info thread查看所有的线程，大概观察下哪些是在等锁的--> thread <thread_id> 跳转到你怀疑的线程代码中并且会显示线程号 -->frame <thread_id>看是否能查到线程阻塞的位置，从而查看阻塞的锁名字，若看不到->where可以看到该A线程阻塞在代码中的位置及锁名字->p <锁名>可查看该A线程获取阻塞的锁的owner是谁，即目前被哪个thread_id的B线程占有-->再thread到占据锁的B线程，用同样的where方法查看B线程阻塞在哪个名字的锁上，从而p <锁名> 打印该锁名字查看其owner是谁，若刚好是A，则可断定是A和B死锁。
+
+若不想杀掉程序可使用gdb attach <process_id> 然后info thread 紧接着用同样的方式调试。
 
 ## 5 段错误产生条件与调试方法
 
