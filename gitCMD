@@ -1,16 +1,20 @@
-#¿ËÂ¡Ö¸¶¨·ÖÖ§´úÂë
+#è‹¥é…ç½®äº†ssh keyæ‰å¯ä»¥ä½¿ç”¨sshçš„urlå…‹éš† å¦åˆ™ä½¿ç”¨http
+
+#é…ç½®ssh keyæ¯”è¾ƒç¹çï¼Œå°å¼æœºä¸ŠæœªæˆåŠŸ
+
+#å…‹éš†æŒ‡å®šåˆ†æ”¯ä»£ç 
 git clone -b MasterBranch git@github.com:aiden-zhang/learngit.git
 
-git branch²é¿´±¾µØ·ÖÖ§
-git branch -r ²é¿´Ô¶³Ì·ÖÖ§
+git branchæŸ¥çœ‹æœ¬åœ°åˆ†æ”¯
+git branch -r æŸ¥çœ‹è¿œç¨‹åˆ†æ”¯
 
-#¸üĞÂÔ¶³Ìµ½±¾µØ
+#æ›´æ–°è¿œç¨‹åˆ°æœ¬åœ°
 git fetch --all
 git pull
 
-#¸üĞÂ±¾µØµ½Ô¶³Ì
-git add [¸üĞÂ»òÔö¼ÓµÄÎÄ¼ş]
-git commit -m "ÆÀÂÛ"
+#æ›´æ–°æœ¬åœ°åˆ°è¿œç¨‹
+git add [æ›´æ–°æˆ–å¢åŠ çš„æ–‡ä»¶]
+git commit -m "è¯„è®º"
 git push
 
-#ÎóÉ¾ÁË±¾µØÎÄ¼ş£¬ÏÈgit reset head ÔÙgit checkout + ÎğÉ¾µÄÎÄ¼ş
+#è¯¯åˆ äº†æœ¬åœ°æ–‡ä»¶ï¼Œå…ˆgit reset head å†git checkout + å‹¿åˆ çš„æ–‡ä»¶
