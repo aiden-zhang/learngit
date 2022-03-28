@@ -12954,6 +12954,9 @@ shared_ptr可以自动管理堆上分别的内存，当某一块内存的引用�
 #include <iostream>
 #include <memory>   //使用shared_ptr需要include它
 
+#include <iostream>
+#include <memory>   //使用shared_ptr需要include它
+
 int main() {
 	//通过make_shared创建shared_ptr
 	std::shared_ptr<int> p1 = std::make_shared<int>();
@@ -12972,9 +12975,9 @@ int main() {
 	std::cout << "p1 Reference count = " << p1.use_count() << std::endl;
 
 	//比较智能指针
-	if (p1 == p2) {
-		std::cout << "p1 and p2 are pointing to same pointer\n";
-	}
+	
+	std::cout << "000 p1 and p2 addr:" << static_cast<const void *> (p1.get()) <<"  and  "<< static_cast<const void *> (p2.get()) << std::endl;
+
 
 	std::cout << "Reset p1" << std::endl;
 
@@ -12982,23 +12985,98 @@ int main() {
 	//因此其引用计数将会变为0
 	p1.reset();
 	std::cout << "p1 Reference Count = " << p1.use_count() << std::endl;
-
+	std::cout << "p2 Reference Count = " << p2.use_count() << std::endl;
+	std::cout << "111p1 and p2 addr:" << static_cast<const void *> (p1.get()) << "  and  " << static_cast<const void *> (p2.get()) << std::endl;
 	//重置shared_ptr，在这种情况下，其内部将会指向一个新的指针
 	//因此其引用计数将会变为1
 	p1.reset(new int(11));
 	std::cout << "p1 Reference Count = " << p1.use_count() << std::endl;
-
+	std::cout << "p2 Reference Count = " << p2.use_count() << std::endl;
+	std::cout << "222 p1 and p2 addr:" << static_cast<const void *> (p1.get()) << "  and  " << static_cast<const void *> (p2.get()) << std::endl;
 	//分配nullptr将取消关联指针并使其指向空值
 	p1 = nullptr;
 	std::cout << "p1 Reference Count = " << p1.use_count() << std::endl;
-
+	std::cout << "p2 Reference Count = " << p2.use_count() << std::endl;
+	std::cout << "333 p1 and p2 addr:" << static_cast<const void *> (p1.get()) << "  and  " << static_cast<const void *> (p2.get()) << std::endl;
 	if (!p1) {
 		std::cout << "p1 is NULL" << std::endl;
 	}
-
+	getchar();
 	return 0;
 }
+
+//程序输出结果：
+p1 = 78
+p1 Reference count = 1
+p2 Reference count = 2
+p1 Reference count = 2
+000 p1 and p2 addr:000EC544  and  000EC544
+Reset p1
+p1 Reference Count = 0
+p2 Reference Count = 1
+111p1 and p2 addr:00000000  and  000EC544
+p1 Reference Count = 1
+p2 Reference Count = 1
+222 p1 and p2 addr:000EC010  and  000EC544
+p1 Reference Count = 0
+p2 Reference Count = 1
+333 p1 and p2 addr:00000000  and  000EC544
+p1 is NULL
 ```
+
+**auto_ptr用法示例：**
+```c++
+	auto sp = std::auto_ptr<int>(new int(55));
+	std::auto_ptr<int> ptr(sp);
+	//cout << *sp << endl;//fail,sp不再有效
+	cout << *ptr << endl;//ok
+```
+**unique_ptr用法示例：**
+```c++
+ 	auto sp = std::unique_ptr<int>(new int(55));
+	std::unique_ptr<int> ptr(std::move(sp));
+	//cout << *sp << endl;//fail,sp不再有效
+	cout << *ptr << endl;//ok
+```
+unique_ptr无法进行传统的复制构造和拷贝构造
+
+```c++
+//比如:
+    auto_ptr<int> ap(new int(88 );
+
+    auto_ptr<int> one (ap) ; // ok
+
+    auto_ptr<int> two = one; //ok
+
+//但unique_ptr不支持上述操作
+
+    unique_ptr<int> ap(new int(88 );
+
+    unique_ptr<int> one (ap) ; // 会出错
+
+    unique_ptr<int> two = one; //会出错
+
+```
+
+但unique_ptr可以进行移动构造和移动赋值操作
+```c++
+unique_ptr<int> GetVal( ){
+
+unique_ptr<int> up(new int(88 );
+
+return up;
+
+}
+```
+
+实际上上面的的操作有点类似于如下操作
+```c++
+unique_ptr<int> up(new int(88 );
+
+unique_ptr<int> uPtr2 = std:move( up) ; //这里是显式的所有权转移. 把up所指的内存转给uPtr2了,而up不再拥有该内存
+```
+**综上：**
+unique_ptr和auto_ptr真的非常类似。其实你可以这样简单的理解，auto_ptr是可以说你随便赋值，但赋值完了之后原来的对象就不知不觉的报废。搞得你莫名其妙. 而unique_ptr就干脆不让你可以随便去复制, 赋值. 如果实在想传个值就哪里,显式的说明内存转移std:move一下. 然后这样传值完了之后, 之前的对象也同样报废了. 只不过整个move让你明显的知道这样操作后会导致之前的unique_ptr对象失效，更有利于代码的理解.
 
 ## 16 const成员函数/变量 static成员函数/变量
 
