@@ -3,3 +3,7 @@
 127.0.0.1:8999 -->get   file:/ -->index.html->get test.jpg
 
 127.0.0.7:8999/submit.html ->file:submit.html->input a&b-->执行cgi/adder  adder a&b
+
+参考：
+
+github上：https://github.com/LZXxd/webServer.git
