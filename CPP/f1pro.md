@@ -12679,7 +12679,7 @@ move可以将左值转换成右值
 
 ## 14 四种强制类型转换
 
-##  1）static_cast
+ 1）static_cast
 
 C语言所采用的类型转换方式：
 
@@ -12746,7 +12746,7 @@ if(Base* pB = static_cast<Base*>(pD))
 
 
 
-## 2) const_cast
+2) const_cast
 
 在C语言中，const限定符通常被用来限定变量，用于表示该变量的值不能被修改。
 
@@ -12865,7 +12865,7 @@ return NULL;
 
 
 
-## 3) reinterpret_cast
+3) reinterpret_cast
 
 在C++语言中，reinterpret_cast主要有三种强制转换用途：***改变指针或引用的类型、将指针或引用转换为一个足够长度的整形、将整型转换为指针或引用类型***。
 
@@ -12911,7 +12911,7 @@ int main(int argc, char **argv)
 }
 ```
 
-## 4) dynamic_cast
+4) dynamic_cast
 
 **用法：dynamic_cast<type_id> (expression)**
 
@@ -13031,6 +13031,7 @@ p1 is NULL
 	//cout << *sp << endl;//fail,sp不再有效
 	cout << *ptr << endl;//ok
 ```
+
 **unique_ptr用法示例：**
 ```c++
  	auto sp = std::unique_ptr<int>(new int(55));
@@ -13084,7 +13085,10 @@ const 和non-const成员函数可以构成重载
 
 static成员变量只能类内声明，类外定义，它属于类而不属于任何一个类对象，const成员函数可修改其值
 
-## 17模板的代码只能写在头文件中，被include包含后才能在编译解决实例化
+## 17 模板的代码只能写在头文件中，被include包含后才能在编译解决实例化
+
+## 18 constexpr 常量表达式
+
 
 # 五、嵌入式基础知识总结
 
