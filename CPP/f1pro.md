@@ -1,3 +1,7 @@
+
+
+
+
 # 一、c++基础
 
 ## 1 c++初识
@@ -12933,7 +12937,7 @@ int main(int argc, char **argv)
 
 ​    **向上转换，即为子类指针指向父类指针（一般不会出问题）；向下转换，即将父类指针转化子类指针，子类除了继承父类的属性和方法还会有可能定义自己的属性和方法，因此向下转化时子类自己的方法和属性丢失。**
 
-例子：
+例子1：
 
 ```c++
 if(Derived *dp = dynamic_cast<Derived *>(bp)){
@@ -12941,6 +12945,48 @@ if(Derived *dp = dynamic_cast<Derived *>(bp)){
 }
 else{
   //使用bp指向的Base对象  
+}
+
+```
+
+例2：
+
+```c++
+#include <iostream>
+#include <memory>
+using namespace std;
+
+class Vehicle {
+public:
+	virtual void run() const = 0;
+	void fun()
+	{
+		cout << "in Vehicle fun" << endl;
+	}
+};
+
+class Airplane :public Vehicle {
+public:
+	void run() const {
+		cout << "run a airplane" << endl;
+	}
+
+	void fun()
+	{
+		cout << "in Airplane fun" << endl;
+	}
+};
+
+int main(void) {
+	Airplane airplane;
+	Vehicle *base = new Airplane();
+	base->run();//执行Airplane中的函数
+	base->fun();//执行Vehicle中的函数
+
+	Airplane *vPtr = new Airplane();
+	vPtr->fun();//执行Airplane中的函数
+	dynamic_cast<Vehicle  *>(vPtr)->fun();//执行Vehicle中的函数
+	return 0;
 }
 ```
 
