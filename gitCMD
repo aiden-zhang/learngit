@@ -19,3 +19,12 @@ git commit -m "评论"
 git push
 
 #误删了本地文件，先git reset head 再git checkout + 勿删的文件
+
+#解决中午乱码，显示为各种数字
+
+git config --global core.quotepath false
+
+
+
+
+
