@@ -14,3 +14,12 @@ git commit -m "评论"
 git push
 
 #误删了本地文件，先git reset head 再git checkout + 勿删的文件
+
+#本地修改了，但其他地方也修改了该文件导致了冲突提示：
+
+    error: You have not concluded your merge (MERGE_HEAD exists).
+    解决办法一:保留本地的更改,中止合并->重新合并->重新拉取
+    $:git merge --abort
+    $:git reset --merge
+    $:git pull
+    

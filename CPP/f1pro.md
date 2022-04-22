@@ -5129,6 +5129,10 @@ int main() {
 
 解决方式：将父类中的析构函数改为虚析构或者纯虚析构
 
+
+
+一般任何class只要有一个virtual函数(说明该class要用作基类)，都几乎确认应该有一个virtual析构函数！
+
 虚析构和纯虚析构共性：
 
 - 可以解决父类指针释放子类对象
@@ -5173,7 +5177,7 @@ public:
 //    }
     
 //2.纯虚析构 
-    //纯虚析构-->基类纯虚函数必须要提供一个定义(实现)，否则编译器会报错
+    //纯虚析构-->基类纯(纯)虚析构函数必须要提供一个定义(实现)，否则编译器会报错
     //有了纯虚析构之后，这个类也属于抽象类，无法实例化对象
     virtual ~Animal() =0;//这里写成虚函数也可以实现统一效果
     
@@ -5193,7 +5197,7 @@ public:
         cout<<"Cat构造函数"<<endl;
         m_name=new string(name);
     }
-    virtual void speak(){
+    virtual void speak(){ //virtual 可有可无
         cout<<*m_name<<"小猫在说话"<<endl;
     }
     ~Cat(){
@@ -13000,11 +13004,27 @@ int main() {
 }
 ```
 
-16 const成员函数/变量 static成员函数/变量
+## 16 const成员函数/变量 static成员函数/变量
 
 const 和non-const成员函数可以构成重载
 
 static成员变量只能类内声明，类外定义，它属于类而不属于任何一个类对象，const成员函数可修改其值
+
+## 17.base class构造器件virtual函数不是virtual函数
+
+18.new /delete,new[ ]/delete[ ]要成对使用
+
+```c++
+int *a = new int(4);//申请一个int变量的空间并用4初始化，a指向该空间
+
+delete a;//销毁单个int变量空间
+
+int *a = new int[4]; //申请一个可存4个元素的数组的空间
+
+delete [ ] a;//销毁数组空间
+```
+
+
 
 # 五、嵌入式基础知识总结
 
