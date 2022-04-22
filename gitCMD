@@ -1,25 +1,26 @@
-#¿ËÂ¡Ö¸¶¨·ÖÖ§´úÂë
+#å…‹éš†æŒ‡å®šåˆ†æ”¯ä»£ç 
 git clone -b MasterBranch git@github.com:aiden-zhang/learngit.git
 
-git branch²é¿´±¾µØ·ÖÖ§
-git branch -r ²é¿´Ô¶³Ì·ÖÖ§
+git branchæŸ¥çœ‹æœ¬åœ°åˆ†æ”¯
+git branch -r æŸ¥çœ‹è¿œç¨‹åˆ†æ”¯
 
-#¸üĞÂÔ¶³Ìµ½±¾µØ
+#æ›´æ–°è¿œç¨‹åˆ°æœ¬åœ°
 git fetch --all
 git pull
 
-#¸üĞÂ±¾µØµ½Ô¶³Ì
-git add [¸üĞÂ»òÔö¼ÓµÄÎÄ¼ş]
-git commit -m "ÆÀÂÛ"
+#æ›´æ–°æœ¬åœ°åˆ°è¿œç¨‹
+git add [æ›´æ–°æˆ–å¢åŠ çš„æ–‡ä»¶]
+git commit -m "è¯„è®º"
 git push
 
-#ÎóÉ¾ÁË±¾µØÎÄ¼ş£¬ÏÈgit reset head ÔÙgit checkout + ÎğÉ¾µÄÎÄ¼ş
+#è¯¯åˆ äº†æœ¬åœ°æ–‡ä»¶ï¼Œå…ˆgit reset head å†git checkout + å‹¿åˆ çš„æ–‡ä»¶
 
-#±¾µØĞŞ¸ÄÁË£¬µ«ÆäËûµØ·½Ò²ĞŞ¸ÄÁË¸ÃÎÄ¼şµ¼ÖÂÁË³åÍ»ÌáÊ¾£º
+#æœ¬åœ°ä¿®æ”¹äº†ï¼Œä½†å…¶ä»–åœ°æ–¹ä¹Ÿä¿®æ”¹äº†è¯¥æ–‡ä»¶å¯¼è‡´äº†å†²çªæç¤ºï¼š
 
     error: You have not concluded your merge (MERGE_HEAD exists).
-    ½â¾ö°ì·¨Ò»:±£Áô±¾µØµÄ¸ü¸Ä,ÖĞÖ¹ºÏ²¢->ÖØĞÂºÏ²¢->ÖØĞÂÀ­È¡
+    è§£å†³åŠæ³•ä¸€:ä¿ç•™æœ¬åœ°çš„æ›´æ”¹,ä¸­æ­¢åˆå¹¶->é‡æ–°åˆå¹¶->é‡æ–°æ‹‰å–
     $:git merge --abort
     $:git reset --merge
     $:git pull
     
+

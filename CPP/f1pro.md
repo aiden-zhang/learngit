@@ -1,3 +1,7 @@
+
+
+
+
 # 一、c++基础
 
 ## 1 c++初识
@@ -12683,7 +12687,7 @@ move可以将左值转换成右值
 
 ## 14 四种强制类型转换
 
-##  1）static_cast
+ 1）static_cast
 
 C语言所采用的类型转换方式：
 
@@ -12750,7 +12754,7 @@ if(Base* pB = static_cast<Base*>(pD))
 
 
 
-## 2) const_cast
+2) const_cast
 
 在C语言中，const限定符通常被用来限定变量，用于表示该变量的值不能被修改。
 
@@ -12869,7 +12873,7 @@ return NULL;
 
 
 
-## 3) reinterpret_cast
+3) reinterpret_cast
 
 在C++语言中，reinterpret_cast主要有三种强制转换用途：***改变指针或引用的类型、将指针或引用转换为一个足够长度的整形、将整型转换为指针或引用类型***。
 
@@ -12915,7 +12919,7 @@ int main(int argc, char **argv)
 }
 ```
 
-## 4) dynamic_cast
+4) dynamic_cast
 
 **用法：dynamic_cast<type_id> (expression)**
 
@@ -12937,7 +12941,7 @@ int main(int argc, char **argv)
 
 ​    **向上转换，即为子类指针指向父类指针（一般不会出问题）；向下转换，即将父类指针转化子类指针，子类除了继承父类的属性和方法还会有可能定义自己的属性和方法，因此向下转化时子类自己的方法和属性丢失。**
 
-例子：
+例子1：
 
 ```c++
 if(Derived *dp = dynamic_cast<Derived *>(bp)){
@@ -12945,6 +12949,48 @@ if(Derived *dp = dynamic_cast<Derived *>(bp)){
 }
 else{
   //使用bp指向的Base对象  
+}
+
+```
+
+例2：
+
+```c++
+#include <iostream>
+#include <memory>
+using namespace std;
+
+class Vehicle {
+public:
+	virtual void run() const = 0;
+	void fun()
+	{
+		cout << "in Vehicle fun" << endl;
+	}
+};
+
+class Airplane :public Vehicle {
+public:
+	void run() const {
+		cout << "run a airplane" << endl;
+	}
+
+	void fun()
+	{
+		cout << "in Airplane fun" << endl;
+	}
+};
+
+int main(void) {
+	Airplane airplane;
+	Vehicle *base = new Airplane();
+	base->run();//执行Airplane中的函数
+	base->fun();//执行Vehicle中的函数
+
+	Airplane *vPtr = new Airplane();
+	vPtr->fun();//执行Airplane中的函数
+	dynamic_cast<Vehicle  *>(vPtr)->fun();//执行Vehicle中的函数
+	return 0;
 }
 ```
 
@@ -12955,6 +13001,9 @@ else{
 shared_ptr可以自动管理堆上分别的内存，当某一块内存的引用计数为0后内存就会自动被释放，很智能，但会带来循环引用，多个指针指向同一块内存可能影响程序的阅读；auto_ptr无引用计数。
 
 ```c++
+#include <iostream>
+#include <memory>   //使用shared_ptr需要include它
+
 #include <iostream>
 #include <memory>   //使用shared_ptr需要include它
 
@@ -12976,9 +13025,9 @@ int main() {
 	std::cout << "p1 Reference count = " << p1.use_count() << std::endl;
 
 	//比较智能指针
-	if (p1 == p2) {
-		std::cout << "p1 and p2 are pointing to same pointer\n";
-	}
+	
+	std::cout << "000 p1 and p2 addr:" << static_cast<const void *> (p1.get()) <<"  and  "<< static_cast<const void *> (p2.get()) << std::endl;
+
 
 	std::cout << "Reset p1" << std::endl;
 
@@ -12986,24 +13035,103 @@ int main() {
 	//因此其引用计数将会变为0
 	p1.reset();
 	std::cout << "p1 Reference Count = " << p1.use_count() << std::endl;
-
+	std::cout << "p2 Reference Count = " << p2.use_count() << std::endl;
+	std::cout << "111p1 and p2 addr:" << static_cast<const void *> (p1.get()) << "  and  " << static_cast<const void *> (p2.get()) << std::endl;
 	//重置shared_ptr，在这种情况下，其内部将会指向一个新的指针
 	//因此其引用计数将会变为1
 	p1.reset(new int(11));
 	std::cout << "p1 Reference Count = " << p1.use_count() << std::endl;
-
+	std::cout << "p2 Reference Count = " << p2.use_count() << std::endl;
+	std::cout << "222 p1 and p2 addr:" << static_cast<const void *> (p1.get()) << "  and  " << static_cast<const void *> (p2.get()) << std::endl;
 	//分配nullptr将取消关联指针并使其指向空值
 	p1 = nullptr;
 	std::cout << "p1 Reference Count = " << p1.use_count() << std::endl;
-
+	std::cout << "p2 Reference Count = " << p2.use_count() << std::endl;
+	std::cout << "333 p1 and p2 addr:" << static_cast<const void *> (p1.get()) << "  and  " << static_cast<const void *> (p2.get()) << std::endl;
 	if (!p1) {
 		std::cout << "p1 is NULL" << std::endl;
 	}
-
+	getchar();
 	return 0;
+}
+
+//程序输出结果：
+p1 = 78
+p1 Reference count = 1
+p2 Reference count = 2
+p1 Reference count = 2
+000 p1 and p2 addr:000EC544  and  000EC544
+Reset p1
+p1 Reference Count = 0
+p2 Reference Count = 1
+111p1 and p2 addr:00000000  and  000EC544
+p1 Reference Count = 1
+p2 Reference Count = 1
+222 p1 and p2 addr:000EC010  and  000EC544
+p1 Reference Count = 0
+p2 Reference Count = 1
+333 p1 and p2 addr:00000000  and  000EC544
+p1 is NULL
+```
+
+**auto_ptr用法示例：**
+```c++
+	auto sp = std::auto_ptr<int>(new int(55));
+	std::auto_ptr<int> ptr(sp);
+	//cout << *sp << endl;//fail,sp不再有效
+	cout << *ptr << endl;//ok
+```
+
+**unique_ptr用法示例：**
+```c++
+ 	auto sp = std::unique_ptr<int>(new int(55));
+	std::unique_ptr<int> ptr(std::move(sp));
+	//cout << *sp << endl;//fail,sp不再有效
+	cout << *ptr << endl;//ok
+```
+unique_ptr无法进行传统的复制构造和拷贝构造
+
+```c++
+//比如:
+    auto_ptr<int> ap(new int(88 );
+
+    auto_ptr<int> one (ap) ; // ok
+
+    auto_ptr<int> two = one; //ok
+
+//但unique_ptr不支持上述操作
+
+    unique_ptr<int> ap(new int(88 );
+
+    unique_ptr<int> one (ap) ; // 会出错
+
+    unique_ptr<int> two = one; //会出错
+
+```
+
+但unique_ptr可以进行移动构造和移动赋值操作
+```c++
+unique_ptr<int> GetVal( ){
+
+unique_ptr<int> up(new int(88 );
+
+return up;
+
 }
 ```
 
+<<<<<<< HEAD
+=======
+实际上上面的的操作有点类似于如下操作
+```c++
+unique_ptr<int> up(new int(88 );
+
+unique_ptr<int> uPtr2 = std:move( up) ; //这里是显式的所有权转移. 把up所指的内存转给uPtr2了,而up不再拥有该内存
+```
+**综上：**
+unique_ptr和auto_ptr真的非常类似。其实你可以这样简单的理解，auto_ptr是可以说你随便赋值，但赋值完了之后原来的对象就不知不觉的报废。搞得你莫名其妙. 而unique_ptr就干脆不让你可以随便去复制, 赋值. 如果实在想传个值就哪里,显式的说明内存转移std:move一下. 然后这样传值完了之后, 之前的对象也同样报废了. 只不过整个move让你明显的知道这样操作后会导致之前的unique_ptr对象失效，更有利于代码的理解.
+
+>>>>>>> 50e089a22a6c904bcc1690d8f57ceb43553702e7
 ## 16 const成员函数/变量 static成员函数/变量
 
 const 和non-const成员函数可以构成重载
@@ -13024,6 +13152,10 @@ int *a = new int[4]; //申请一个可存4个元素的数组的空间
 delete [ ] a;//销毁数组空间
 ```
 
+## 17 模板的代码只能写在头文件中，被include包含后才能在编译解决实例化
+
+## 18 constexpr 常量表达式
+>>>>>>> 
 
 
 # 五、嵌入式基础知识总结
