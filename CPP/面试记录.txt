@@ -1,0 +1,18 @@
+登临：
+vecor list dequeue array map区别？
+cmake使用？
+static，const的使用？
+volatile的使用情形？
+
+木蚁机器人：
+static，const的使用？static成员变量怎么用？
+虚函数表的内存分布？
+new delete差别？delete [ ]是什么情况？
+线程通信方式？进程通信方式？信号量的PV操作是什么样的？c++条件互斥锁和信号量等和c的区别？
+互锁知道不？
+智能指针？
+继承时多态是怎么发生的？
+c++11用过哪些接口？
+vector的pushback和emplace差别？
+vecor list dequeue array map区别？
+设计模式了解哪些？工厂模式？详细说下工厂模式？
